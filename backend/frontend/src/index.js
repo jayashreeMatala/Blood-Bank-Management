@@ -2,8 +2,15 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 
-// 👇 THIS LINE LOADS BOOTSTRAP
+import { InventoryProvider } from "./context/InventoryContext";
+
+// Bootstrap CSS
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
+root.render(
+  <InventoryProvider>
+    <App />
+  </InventoryProvider>
+);
+

@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useInventory } from "../context/InventoryContext";
 
 function Requests() {
+  const { decreaseStock } = useInventory();
+
   const [requests, setRequests] = useState([
     {
       id: 1,
@@ -25,17 +28,21 @@ function Requests() {
     }
   ]);
 
-  const approveRequest = (id) => {
-    setRequests(
-      requests.map((r) =>
-        r.id === id ? { ...r, status: "Approved" } : r
+  const approveRequest = (req) => {
+    // 🔴 Inventory minus
+    decreaseStock(req.blood, req.units);
+
+    // ✅ Status update
+    setRequests((prev) =>
+      prev.map((r) =>
+        r.id === req.id ? { ...r, status: "Approved" } : r
       )
     );
   };
 
   const rejectRequest = (id) => {
-    setRequests(
-      requests.map((r) =>
+    setRequests((prev) =>
+      prev.map((r) =>
         r.id === id ? { ...r, status: "Rejected" } : r
       )
     );
@@ -45,12 +52,10 @@ function Requests() {
     <div className="container-fluid">
       <h2 className="mb-4">Blood Requests</h2>
 
-      {/* INFO ALERT */}
       <div className="alert alert-info">
-        Review blood requests carefully before approving.
+        Approving a request will automatically reduce inventory stock.
       </div>
 
-      {/* REQUESTS TABLE */}
       <div className="card shadow-sm">
         <div className="card-body">
           <table className="table table-bordered table-hover">
@@ -78,9 +83,7 @@ function Requests() {
                     <td>{index + 1}</td>
                     <td>{r.hospital}</td>
                     <td>
-                      <span className="badge bg-danger">
-                        {r.blood}
-                      </span>
+                      <span className="badge bg-danger">{r.blood}</span>
                     </td>
                     <td>{r.units}</td>
                     <td>
@@ -105,7 +108,7 @@ function Requests() {
                         <>
                           <button
                             className="btn btn-sm btn-success me-2"
-                            onClick={() => approveRequest(r.id)}
+                            onClick={() => approveRequest(r)}
                           >
                             Approve
                           </button>
@@ -117,9 +120,7 @@ function Requests() {
                           </button>
                         </>
                       ) : (
-                        <span className="text-muted">
-                          No Action
-                        </span>
+                        <span className="text-muted">No Action</span>
                       )}
                     </td>
                   </tr>

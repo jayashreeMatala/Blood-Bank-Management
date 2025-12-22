@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Page imports (explicit .jsx extensions)
+import Sidebar from "./components/Sidebar.jsx";
+import ProtectedRoute from "./Components/ProtectedRoute.jsx";
+
+import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Donors from "./pages/Donors.jsx";
 import Inventory from "./pages/Inventory.jsx";
@@ -8,20 +11,114 @@ import Donations from "./pages/Donations.jsx";
 import Requests from "./pages/Requests.jsx";
 import Camps from "./pages/Camps.jsx";
 import Transfers from "./pages/Transfers.jsx";
-import Sidebar from "./Components/Sidebar.jsx";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/donors" element={<Donors />} />
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/donations" element={<Donations />} />
-        <Route path="/requests" element={<Requests />} />
-        <Route path="/camps" element={<Camps />} />
-        <Route path="/transfers" element={<Transfers />} />
-        <Route path="/sidebar" element={<Sidebar />} />
+
+        {/* LOGIN ROUTE */}
+        <Route path="/login" element={<Login />} />
+
+        {/* PROTECTED ADMIN ROUTES */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <div className="d-flex">
+                <Sidebar />
+                <div className="flex-grow-1 p-4">
+                  <Dashboard />
+                </div>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/donors"
+          element={
+            <ProtectedRoute>
+              <div className="d-flex">
+                <Sidebar />
+                <div className="flex-grow-1 p-4">
+                  <Donors />
+                </div>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute>
+              <div className="d-flex">
+                <Sidebar />
+                <div className="flex-grow-1 p-4">
+                  <Inventory />
+                </div>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/donations"
+          element={
+            <ProtectedRoute>
+              <div className="d-flex">
+                <Sidebar />
+                <div className="flex-grow-1 p-4">
+                  <Donations />
+                </div>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/requests"
+          element={
+            <ProtectedRoute>
+              <div className="d-flex">
+                <Sidebar />
+                <div className="flex-grow-1 p-4">
+                  <Requests />
+                </div>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/camps"
+          element={
+            <ProtectedRoute>
+              <div className="d-flex">
+                <Sidebar />
+                <div className="flex-grow-1 p-4">
+                  <Camps />
+                </div>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/transfers"
+          element={
+            <ProtectedRoute>
+              <div className="d-flex">
+                <Sidebar />
+                <div className="flex-grow-1 p-4">
+                  <Transfers />
+                </div>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );
