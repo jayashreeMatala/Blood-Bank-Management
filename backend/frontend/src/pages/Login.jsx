@@ -1,20 +1,43 @@
-const handleLogin = () => {
-  if (email === "admin@gmail.com" && password === "admin123") {
-    localStorage.setItem("isAdminLoggedIn", "true");
-    localStorage.setItem("role", "superadmin");
-    navigate("/");
-  } 
-  else if (email === "staff@gmail.com" && password === "staff123") {
-    localStorage.setItem("isAdminLoggedIn", "true");
-    localStorage.setItem("role", "staff");
-    navigate("/");
-  } 
-  else if (email === "viewer@gmail.com" && password === "viewer123") {
-    localStorage.setItem("isAdminLoggedIn", "true");
-    localStorage.setItem("role", "viewer");
-    navigate("/");
-  }
-  else {
-    alert("Invalid credentials");
-  }
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    if (email && password) {
+      navigate("/");
+    }
+  };
+
+  return (
+    <div className="container mt-5">
+      <h2>Login</h2>
+
+      <input
+        type="email"
+        className="form-control mb-3"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+
+      <input
+        type="password"
+        className="form-control mb-3"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <button className="btn btn-primary" onClick={handleLogin}>
+        Login
+      </button>
+    </div>
+  );
 };
+
+export default Login;

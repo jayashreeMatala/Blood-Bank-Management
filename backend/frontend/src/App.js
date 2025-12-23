@@ -1,26 +1,25 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Sidebar from "./components/Sidebar.jsx";
-import ProtectedRoute from "./Components/ProtectedRoute.jsx";
+import Sidebar from "./Components/Sidebar";
+import ProtectedRoute from "./Components/ProtectedRoute";
 
-import Login from "./pages/Login.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import Donors from "./pages/Donors.jsx";
-import Inventory from "./pages/Inventory.jsx";
-import Donations from "./pages/Donations.jsx";
-import Requests from "./pages/Requests.jsx";
-import Camps from "./pages/Camps.jsx";
-import Transfers from "./pages/Transfers.jsx";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Donors from "./pages/Donors";
+import Inventory from "./pages/Inventory";
+import Donations from "./pages/Donations";
+import Requests from "./pages/Requests";
+import Camps from "./pages/Camps";
+import Transfers from "./pages/Transfers";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-
-        {/* LOGIN ROUTE */}
+        {/* LOGIN */}
         <Route path="/login" element={<Login />} />
 
-        {/* PROTECTED ADMIN ROUTES */}
+        {/* DASHBOARD */}
         <Route
           path="/"
           element={
@@ -118,7 +117,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
       </Routes>
     </BrowserRouter>
   );
