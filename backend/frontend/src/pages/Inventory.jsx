@@ -1,91 +1,102 @@
+import { useInventory } from "../context/InventoryContext";
+
 function Inventory() {
-  const inventory = [
-    { blood: "A+", units: 45 },
-    { blood: "A-", units: 8 },
-    { blood: "B+", units: 32 },
-    { blood: "B-", units: 12 },
-    { blood: "O+", units: 55 },
-    { blood: "O-", units: 6 },
-    { blood: "AB+", units: 18 },
-    { blood: "AB-", units: 5 }
-  ];
+  const { inventory } = useInventory();
+
+  const totalUnits = inventory.reduce((s, i) => s + i.units, 0);
+  const lowStockCount = inventory.filter((i) => i.units < 10).length;
 
   return (
-    <div className="container-fluid">
-      <h2 className="mb-4">Blood Inventory</h2>
+    <div>
+      {/* PAGE HEADER */}
+      <h2 className="fw-bold">Blood Inventory</h2>
+      <p className="text-muted mb-4">
+        Manage blood stock levels across all blood groups
+      </p>
 
-      {/* SUMMARY CARDS */}
-      <div className="row mb-4">
-        <div className="col-md-4">
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h6>Total Units</h6>
-              <h2>
-                {inventory.reduce((sum, item) => sum + item.units, 0)}
-              </h2>
-              <small className="text-muted">Available in stock</small>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h6>Blood Groups</h6>
-              <h2>{inventory.length}</h2>
-              <small className="text-muted">Types available</small>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h6>Low Stock Alerts</h6>
-              <h2>
-                {inventory.filter((i) => i.units < 10).length}
-              </h2>
-              <small className="text-danger">Below threshold</small>
-            </div>
-          </div>
-        </div>
+      {/* TOP SUMMARY CARDS */}
+      <div className="row g-3 mb-4">
+        <SummaryCard title="Total Units" value={totalUnits} icon="📦" />
+        <SummaryCard title="Blood Groups" value="8" icon="🧬" />
+        <SummaryCard
+          title="Low Stock Alerts"
+          value={lowStockCount}
+          icon="⚠"
+          warning
+        />
       </div>
 
       {/* INVENTORY CARDS */}
-      <div className="row">
-        {inventory.map((item, index) => (
-          <div className="col-md-3 mb-4" key={index}>
-            <div
-              className={`card shadow-sm ${
-                item.units < 10 ? "border-danger" : ""
-              }`}
-            >
-              <div className="card-body text-center">
-                <h4>{item.blood}</h4>
-                <h2>{item.units}</h2>
-                <small>Units Available</small>
+      <div className="row g-4">
+        {inventory.map((i, idx) => {
+          const isLow = i.units < 10;
 
-                {item.units < 10 && (
-                  <div className="text-danger mt-2">
-                    <small>⚠ Low Stock</small>
+          return (
+            <div className="col-md-3" key={idx}>
+              <div
+                className={`card h-100 shadow-sm ${
+                  isLow ? "border-danger bg-light" : ""
+                }`}
+              >
+                <div className="card-body">
+
+                  {/* HEADER */}
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <span className="badge bg-danger fs-6">{i.blood}</span>
+                    {isLow && (
+                      <span className="badge bg-danger-subtle text-danger">
+                        Low
+                      </span>
+                    )}
                   </div>
-                )}
 
-                <div className="mt-3">
-                  <div className="progress">
+                  {/* UNITS */}
+                  <h3 className="fw-bold mb-1">{i.units}</h3>
+                  <small className="text-muted">Units Available</small>
+
+                  {/* PROGRESS */}
+                  <div className="progress mt-3" style={{ height: "6px" }}>
                     <div
                       className={`progress-bar ${
-                        item.units < 10 ? "bg-danger" : "bg-success"
+                        isLow ? "bg-danger" : "bg-success"
                       }`}
-                      style={{ width: `${Math.min(item.units * 2, 100)}%` }}
-                    ></div>
+                      style={{
+                        width: `${Math.min((i.units / 50) * 100, 100)}%`
+                      }}
+                    />
                   </div>
-                  <small className="text-muted">Threshold: 10 units</small>
+
+                  {/* THRESHOLD */}
+                  <small className="text-muted d-block mt-2">
+                    Threshold: 10 units
+                  </small>
                 </div>
               </div>
             </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ===== SMALL SUMMARY CARD ===== */
+
+function SummaryCard({ title, value, icon, warning }) {
+  return (
+    <div className="col-md-4">
+      <div
+        className={`card shadow-sm ${
+          warning ? "bg-warning bg-opacity-25" : ""
+        }`}
+      >
+        <div className="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <small className="text-muted">{title}</small>
+            <h3 className="fw-bold mb-0">{value}</h3>
           </div>
-        ))}
+          <div className="fs-2">{icon}</div>
+        </div>
       </div>
     </div>
   );

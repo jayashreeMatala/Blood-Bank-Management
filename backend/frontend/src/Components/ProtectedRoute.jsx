@@ -1,14 +1,14 @@
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const ProtectedRoute = ({ children }) => {
-  // TEMP AUTH CHECK (later backend se replace karna)
-  const isAuthenticated = true; // false karoge to login pe redirect hoga
+function ProtectedRoute({ children }) {
+  const { isAuth } = useAuth();
 
-  if (!isAuthenticated) {
+  if (!isAuth) {
     return <Navigate to="/login" replace />;
   }
 
   return children;
-};
+}
 
 export default ProtectedRoute;

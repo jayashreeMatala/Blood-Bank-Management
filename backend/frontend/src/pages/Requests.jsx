@@ -2,40 +2,58 @@ import { useState } from "react";
 import { useInventory } from "../context/InventoryContext";
 
 function Requests() {
-  const { decreaseStock } = useInventory();
+  const { inventory, deductInventory } = useInventory();
+
+  const [filter, setFilter] = useState("All");
+  const [search, setSearch] = useState("");
 
   const [requests, setRequests] = useState([
     {
       id: 1,
-      hospital: "City Hospital",
-      blood: "O+",
+      blood: "A+",
       units: 2,
+      patient: "David Chen",
+      hospital: "Metro General Hospital",
+      doctor: "Dr. Smith",
+      phone: "+1 555-0300",
+      requiredBy: "Feb 10, 2025",
+      priority: "Urgent",
       status: "Pending"
     },
     {
       id: 2,
-      hospital: "Life Care Center",
-      blood: "A-",
-      units: 1,
-      status: "Pending"
-    },
-    {
-      id: 3,
-      hospital: "Metro Hospital",
-      blood: "AB+",
+      blood: "O-",
       units: 3,
-      status: "Approved"
+      patient: "Lisa Martinez",
+      hospital: "St. Mary's Medical Center",
+      doctor: "Dr. Johnson",
+      phone: "+1 555-0301",
+      requiredBy: "Feb 8, 2025",
+      priority: "Critical",
+      status: "Pending"
     }
   ]);
 
-  const approveRequest = (req) => {
-    // 🔴 Inventory minus
-    decreaseStock(req.blood, req.units);
+  /* ===== HELPERS ===== */
 
-    // ✅ Status update
+  const getAvailableUnits = (blood) =>
+    inventory.find((i) => i.blood === blood)?.units || 0;
+
+  const approveRequest = (id, blood, units) => {
+    const available = getAvailableUnits(blood);
+
+    if (available < units) {
+      alert("❌ Not enough blood units available");
+      return;
+    }
+
+    // reduce inventory
+    deductInventory(blood, units);
+
+    // update request status
     setRequests((prev) =>
       prev.map((r) =>
-        r.id === req.id ? { ...r, status: "Approved" } : r
+        r.id === id ? { ...r, status: "Fulfilled" } : r
       )
     );
   };
@@ -48,87 +66,157 @@ function Requests() {
     );
   };
 
-  return (
-    <div className="container-fluid">
-      <h2 className="mb-4">Blood Requests</h2>
+  const filteredRequests = requests.filter((r) => {
+    const matchFilter =
+      filter === "All" || r.status === filter;
+    const matchSearch =
+      r.patient.toLowerCase().includes(search.toLowerCase()) ||
+      r.blood.toLowerCase().includes(search.toLowerCase());
 
-      <div className="alert alert-info">
-        Approving a request will automatically reduce inventory stock.
+    return matchFilter && matchSearch;
+  });
+
+  return (
+    <div>
+      {/* HEADER */}
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 className="fw-bold mb-0">Blood Requests</h2>
+          <p className="text-muted">
+            Manage blood requests from hospitals
+          </p>
+        </div>
+
+        <button className="btn btn-danger">
+          + New Request
+        </button>
       </div>
 
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <table className="table table-bordered table-hover">
-            <thead className="table-dark">
-              <tr>
-                <th>#</th>
-                <th>Hospital</th>
-                <th>Blood Group</th>
-                <th>Units</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
+      {/* FILTERS */}
+      <div className="d-flex align-items-center gap-2 mb-4">
+        {["All", "Pending", "Approved", "Fulfilled"].map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`btn btn-sm ${
+              filter === f
+                ? "btn-light border"
+                : "btn-outline-secondary"
+            }`}
+          >
+            {f}
+          </button>
+        ))}
 
-            <tbody>
-              {requests.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="text-center">
-                    No requests available
-                  </td>
-                </tr>
-              ) : (
-                requests.map((r, index) => (
-                  <tr key={r.id}>
-                    <td>{index + 1}</td>
-                    <td>{r.hospital}</td>
-                    <td>
-                      <span className="badge bg-danger">{r.blood}</span>
-                    </td>
-                    <td>{r.units}</td>
-                    <td>
-                      {r.status === "Pending" && (
+        <input
+          className="form-control ms-auto"
+          style={{ maxWidth: "260px" }}
+          placeholder="Search requests..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {/* REQUEST CARDS */}
+      <div className="row g-4">
+        {filteredRequests.map((r) => {
+          const available = getAvailableUnits(r.blood);
+
+          return (
+            <div className="col-md-6" key={r.id}>
+              <div className="card shadow-sm h-100">
+                <div className="card-body">
+                  {/* TOP */}
+                  <div className="d-flex align-items-center gap-3 mb-3">
+                    <span className="badge bg-danger fs-6">
+                      {r.blood}
+                      <div className="small">
+                        {r.units} units
+                      </div>
+                    </span>
+
+                    <div>
+                      <strong>{r.patient}</strong>
+                      <div className="d-flex gap-2 mt-1">
                         <span className="badge bg-warning text-dark">
-                          Pending
+                          {r.priority}
                         </span>
-                      )}
-                      {r.status === "Approved" && (
-                        <span className="badge bg-success">
-                          Approved
+
+                        <span
+                          className={`badge ${
+                            r.status === "Pending"
+                              ? "bg-warning text-dark"
+                              : r.status === "Fulfilled"
+                              ? "bg-success"
+                              : "bg-danger"
+                          }`}
+                        >
+                          {r.status}
                         </span>
-                      )}
-                      {r.status === "Rejected" && (
-                        <span className="badge bg-secondary">
-                          Rejected
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      {r.status === "Pending" ? (
-                        <>
-                          <button
-                            className="btn btn-sm btn-success me-2"
-                            onClick={() => approveRequest(r)}
-                          >
-                            Approve
-                          </button>
-                          <button
-                            className="btn btn-sm btn-danger"
-                            onClick={() => rejectRequest(r.id)}
-                          >
-                            Reject
-                          </button>
-                        </>
-                      ) : (
-                        <span className="text-muted">No Action</span>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* DETAILS */}
+                  <div className="text-muted small mb-2">
+                    🏥 {r.hospital}
+                  </div>
+                  <div className="text-muted small mb-2">
+                    📞 {r.doctor} · {r.phone}
+                  </div>
+                  <div className="text-muted small mb-3">
+                    📅 Required by: {r.requiredBy}
+                  </div>
+
+                  {/* STOCK */}
+                  <div
+                    className={`alert py-2 small ${
+                      available < r.units
+                        ? "alert-danger"
+                        : "alert-success"
+                    }`}
+                  >
+                    {available < r.units
+                      ? `⚠ Only ${available} units available (Insufficient)`
+                      : `✓ ${available} units available in stock`}
+                  </div>
+
+                  {/* ACTIONS */}
+                  {r.status === "Pending" && (
+                    <div className="d-flex gap-2">
+                      <button
+                        className="btn btn-success w-100"
+                        disabled={available < r.units}
+                        onClick={() =>
+                          approveRequest(
+                            r.id,
+                            r.blood,
+                            r.units
+                          )
+                        }
+                      >
+                        ✓ Approve
+                      </button>
+
+                      <button
+                        className="btn btn-outline-danger w-100"
+                        onClick={() => rejectRequest(r.id)}
+                      >
+                        ✕ Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {filteredRequests.length === 0 && (
+          <div className="text-center text-muted py-5">
+            No requests found
+          </div>
+        )}
       </div>
     </div>
   );

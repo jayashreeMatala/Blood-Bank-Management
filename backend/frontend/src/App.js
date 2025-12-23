@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 
-import Sidebar from "./Components/Sidebar";
 import ProtectedRoute from "./Components/ProtectedRoute";
+import Sidebar from "./Components/Sidebar";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -12,113 +13,39 @@ import Requests from "./pages/Requests";
 import Camps from "./pages/Camps";
 import Transfers from "./pages/Transfers";
 
+function Layout({ children }) {
+  return (
+    <div className="d-flex">
+      <Sidebar />
+      <div className="flex-grow-1 p-4">{children}</div>
+    </div>
+  );
+}
+
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* LOGIN */}
-        <Route path="/login" element={<Login />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
 
-        {/* DASHBOARD */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <div className="d-flex">
-                <Sidebar />
-                <div className="flex-grow-1 p-4">
-                  <Dashboard />
-                </div>
-              </div>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/donors"
-          element={
-            <ProtectedRoute>
-              <div className="d-flex">
-                <Sidebar />
-                <div className="flex-grow-1 p-4">
-                  <Donors />
-                </div>
-              </div>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/inventory"
-          element={
-            <ProtectedRoute>
-              <div className="d-flex">
-                <Sidebar />
-                <div className="flex-grow-1 p-4">
-                  <Inventory />
-                </div>
-              </div>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/donations"
-          element={
-            <ProtectedRoute>
-              <div className="d-flex">
-                <Sidebar />
-                <div className="flex-grow-1 p-4">
-                  <Donations />
-                </div>
-              </div>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/requests"
-          element={
-            <ProtectedRoute>
-              <div className="d-flex">
-                <Sidebar />
-                <div className="flex-grow-1 p-4">
-                  <Requests />
-                </div>
-              </div>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/camps"
-          element={
-            <ProtectedRoute>
-              <div className="d-flex">
-                <Sidebar />
-                <div className="flex-grow-1 p-4">
-                  <Camps />
-                </div>
-              </div>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/transfers"
-          element={
-            <ProtectedRoute>
-              <div className="d-flex">
-                <Sidebar />
-                <div className="flex-grow-1 p-4">
-                  <Transfers />
-                </div>
-              </div>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout><Dashboard /></Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/donors" element={<ProtectedRoute><Layout><Donors /></Layout></ProtectedRoute>} />
+          <Route path="/inventory" element={<ProtectedRoute><Layout><Inventory /></Layout></ProtectedRoute>} />
+          <Route path="/donations" element={<ProtectedRoute><Layout><Donations /></Layout></ProtectedRoute>} />
+          <Route path="/requests" element={<ProtectedRoute><Layout><Requests /></Layout></ProtectedRoute>} />
+          <Route path="/camps" element={<ProtectedRoute><Layout><Camps /></Layout></ProtectedRoute>} />
+          <Route path="/transfers" element={<ProtectedRoute><Layout><Transfers /></Layout></ProtectedRoute>} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

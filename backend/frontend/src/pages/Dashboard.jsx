@@ -1,133 +1,208 @@
+import { useInventory } from "../context/InventoryContext";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip
+} from "chart.js";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
+
 function Dashboard() {
+  const { inventory } = useInventory();
+
+  if (!inventory || inventory.length === 0) {
+    return (
+      <div className="text-center mt-5">
+        <h4>No inventory data available</h4>
+        <p className="text-muted">Please add blood stock</p>
+      </div>
+    );
+  }
+
+  /* ===== CALCULATIONS ===== */
+  const totalUnits = inventory.reduce((s, i) => s + i.units, 0);
+  const lowStock = inventory.filter((i) => i.units < 10);
+
+  /* ===== BAR CHART ===== */
+  const chartData = {
+    labels: inventory.map((i) => i.blood),
+    datasets: [
+      {
+        data: inventory.map((i) => i.units),
+        backgroundColor: inventory.map((i) =>
+          i.units < 10 ? "#dc3545" : "#28a745"
+        ),
+        borderRadius: 8
+      }
+    ]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    animation: { duration: 800, easing: "easeOutQuart" }
+  };
+
   return (
-    <div className="container-fluid">
-      <h2 className="mb-4">Dashboard</h2>
+    <div>
+      {/* ===== HEADER ===== */}
+      <h2 className="fw-bold">Dashboard</h2>
+      <p className="text-muted mb-4">Overview of blood bank operations</p>
 
-      {/* TOP STATS */}
-      <div className="row mb-4">
-        <div className="col-md-3">
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h6>Total Donors</h6>
-              <h2>5</h2>
-              <small className="text-muted">Registered donors</small>
-            </div>
-          </div>
-        </div>
+      {/* ===== TOP STATS ===== */}
+      <div className="row g-3 mb-4">
+        <TopCard title="Total Donors" value="5" icon="👥" />
+        <TopCard title="Blood Units" value={totalUnits} icon="🩸" />
+        <TopCard title="Donations" value="4" icon="❤️" />
+        <TopCard title="Upcoming Camps" value="3" icon="📅" />
+      </div>
 
-        <div className="col-md-3">
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h6>Blood Units</h6>
-              <h2>181</h2>
-              <small className="text-muted">Available in stock</small>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-3">
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h6>Donations</h6>
-              <h2>4</h2>
-              <small className="text-warning">2 pending approval</small>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-3">
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h6>Upcoming Camps</h6>
-              <h2>3</h2>
-              <small className="text-muted">Scheduled events</small>
-            </div>
+      {/* ===== ALERT ===== */}
+      <div className="alert alert-warning d-flex gap-3">
+        <span className="fs-4">⚠</span>
+        <div>
+          <strong>Attention Required</strong>
+          <div className="small">
+            • Low stock: {lowStock.map((i) => i.blood).join(", ")} <br />
+            • 2 pending blood request(s)
           </div>
         </div>
       </div>
 
-      {/* ALERT */}
-      <div className="alert alert-warning mb-4">
-        <strong>Attention Required</strong>
-        <ul className="mb-0">
-          <li>Low stock alert for: A-, O-, AB-</li>
-          <li>2 pending blood requests awaiting approval</li>
-        </ul>
-      </div>
+      {/* ===== INVENTORY CARDS ===== */}
+      <h5 className="fw-bold mb-3">Blood Inventory</h5>
+      <div className="row g-3 mb-4">
+        {inventory.map((i, idx) => (
+          <div className="col-md-3" key={idx}>
+            <div
+              className={`card h-100 shadow-sm ${
+                i.units < 10 ? "border-danger bg-light" : ""
+              }`}
+            >
+              <div className="card-body">
+                <div className="d-flex justify-content-between mb-2">
+                  <span className="badge bg-danger">{i.blood}</span>
+                  {i.units < 10 && <span className="badge bg-danger">Low</span>}
+                </div>
 
-      {/* BLOOD INVENTORY */}
-      <h5 className="mb-3">Blood Inventory</h5>
-      <div className="row mb-4">
-        {[
-          { group: "A+", units: 45 },
-          { group: "A-", units: 8 },
-          { group: "B+", units: 32 },
-          { group: "B-", units: 12 },
-          { group: "O+", units: 55 },
-          { group: "O-", units: 6 },
-          { group: "AB+", units: 18 },
-          { group: "AB-", units: 5 }
-        ].map((b, i) => (
-          <div className="col-md-3 mb-3" key={i}>
-            <div className={`card shadow-sm ${b.units < 10 ? "border-danger" : ""}`}>
-              <div className="card-body text-center">
-                <h5>{b.group}</h5>
-                <h3>{b.units}</h3>
-                <small>Units Available</small>
-                {b.units < 10 && (
-                  <div className="text-danger mt-1">
-                    <small>Low Stock</small>
-                  </div>
-                )}
+                <h3 className="fw-bold">{i.units}</h3>
+                <small className="text-muted">Units Available</small>
+
+                <div className="progress mt-2" style={{ height: "6px" }}>
+                  <div
+                    className={`progress-bar ${
+                      i.units < 10 ? "bg-danger" : "bg-success"
+                    }`}
+                    style={{
+                      width: `${Math.min((i.units / 50) * 100, 100)}%`
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* BOTTOM SECTION */}
-      <div className="row">
-        {/* RECENT DONATIONS */}
-        <div className="col-md-6">
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h5>Recent Donations</h5>
-              <ul className="list-group list-group-flush">
-                <li className="list-group-item d-flex justify-content-between">
-                  John Smith (O+) <span className="badge bg-success">Approved</span>
-                </li>
-                <li className="list-group-item d-flex justify-content-between">
-                  Sarah Johnson (A+) <span className="badge bg-success">Approved</span>
-                </li>
-                <li className="list-group-item d-flex justify-content-between">
-                  Michael Brown (B-) <span className="badge bg-warning">Pending</span>
-                </li>
-              </ul>
-            </div>
+      {/* ===== RECENT + CAMPS ===== */}
+      <div className="row g-3">
+        <RecentDonations />
+        <UpcomingCamps />
+      </div>
+
+      {/* ===== BAR CHART ===== */}
+      <div className="card shadow-sm mt-4">
+        <div className="card-body">
+          <h6 className="text-muted mb-3">Inventory Overview</h6>
+          <div style={{ height: "180px" }}>
+            <Bar data={chartData} options={chartOptions} />
           </div>
         </div>
+      </div>
 
-        {/* UPCOMING CAMPS */}
-        <div className="col-md-6">
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h5>Upcoming Camps</h5>
-              <ul className="list-group list-group-flush">
-                <li className="list-group-item">
-                  <strong>Community Center Camp</strong><br />
-                  <small>Mar 5, 2025 • 08:00 - 15:00</small>
-                </li>
-                <li className="list-group-item">
-                  <strong>University Donation Day</strong><br />
-                  <small>Feb 25, 2025 • 10:00 - 16:00</small>
-                </li>
-                <li className="list-group-item">
-                  <strong>City Hospital Drive</strong><br />
-                  <small>Feb 20, 2025 • 09:00 - 17:00</small>
-                </li>
-              </ul>
-            </div>
+      {/* ===== COMPATIBILITY TABLE ===== */}
+      <div className="card shadow-sm mt-4">
+        <div className="card-body">
+          <h6 className="fw-bold mb-3">Blood Compatibility</h6>
+          <table className="table table-bordered text-center">
+            <thead className="table-light">
+              <tr>
+                <th>Group</th>
+                <th>Donate To</th>
+                <th>Receive From</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>O−</td><td>All</td><td>O−</td></tr>
+              <tr><td>O+</td><td>O+, A+, B+, AB+</td><td>O+, O−</td></tr>
+              <tr><td>A−</td><td>A−, A+, AB−, AB+</td><td>A−, O−</td></tr>
+              <tr><td>A+</td><td>A+, AB+</td><td>A+, A−, O+, O−</td></tr>
+              <tr><td>B−</td><td>B−, B+, AB−, AB+</td><td>B−, O−</td></tr>
+              <tr><td>B+</td><td>B+, AB+</td><td>B+, B−, O+, O−</td></tr>
+              <tr><td>AB−</td><td>AB−, AB+</td><td>AB−, A−, B−, O−</td></tr>
+              <tr><td>AB+</td><td>AB+</td><td>All</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== SMALL COMPONENTS ===== */
+
+function TopCard({ title, value, icon }) {
+  return (
+    <div className="col-md-3">
+      <div className="card shadow-sm h-100">
+        <div className="card-body d-flex justify-content-between">
+          <div>
+            <small className="text-muted">{title}</small>
+            <h3 className="fw-bold">{value}</h3>
           </div>
+          <div className="fs-2">{icon}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RecentDonations() {
+  return (
+    <div className="col-md-6">
+      <div className="card shadow-sm h-100">
+        <div className="card-body">
+          <h6 className="fw-bold">Recent Donations</h6>
+          <DonationRow name="John Smith" blood="O+" />
+          <DonationRow name="Sarah Johnson" blood="A+" />
+          <DonationRow name="Michael Brown" blood="B−" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DonationRow({ name, blood }) {
+  return (
+    <div className="d-flex justify-content-between py-2 border-bottom">
+      <strong>{name}</strong>
+      <span className="text-muted">{blood}</span>
+    </div>
+  );
+}
+
+function UpcomingCamps() {
+  return (
+    <div className="col-md-6">
+      <div className="card shadow-sm h-100">
+        <div className="card-body">
+          <h6 className="fw-bold">Upcoming Camps</h6>
+          <div>Mar 5 – Community Center</div>
+          <div>Feb 25 – University Campus</div>
         </div>
       </div>
     </div>
