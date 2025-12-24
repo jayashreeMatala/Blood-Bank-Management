@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { useInventory } from "../context/InventoryContext";
+import { useDonors } from "../context/DonorContext";
 
 function Donations() {
   const { deductInventory } = useInventory();
+  const { donors, addDonationToDonor } = useDonors();
 
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
   const [donations, setDonations] = useState([
     {
       id: 1,
+      donorId: 1,
       name: "John Smith",
       blood: "O+",
       units: 1,
@@ -19,6 +23,7 @@ function Donations() {
     },
     {
       id: 2,
+      donorId: 2,
       name: "Sarah Johnson",
       blood: "A+",
       units: 1,
@@ -28,28 +33,30 @@ function Donations() {
     },
     {
       id: 3,
+      donorId: 3,
       name: "Michael Brown",
       blood: "B-",
       units: 1,
       date: "Feb 1, 2025",
       camp: "-",
       status: "Pending"
-    },
-    {
-      id: 4,
-      name: "Emily Davis",
-      blood: "AB+",
-      units: 1,
-      date: "Feb 5, 2025",
-      camp: "-",
-      status: "Pending"
     }
   ]);
 
+  /* ===== RECORD FORM STATE ===== */
+  const [form, setForm] = useState({
+    donorId: "",
+    units: 1,
+    camp: "-"
+  });
+
   /* ===== ACTIONS ===== */
 
-  const approveDonation = (id, blood, units) => {
+  const approveDonation = (id, donorId, blood, units) => {
     deductInventory(blood, -units);
+
+    const today = new Date().toISOString().split("T")[0];
+    addDonationToDonor(donorId, today);
 
     setDonations((prev) =>
       prev.map((d) =>
@@ -66,7 +73,35 @@ function Donations() {
     );
   };
 
-  /* ===== FILTER LOGIC ===== */
+  /* ===== ADD NEW DONATION ===== */
+  const saveDonation = () => {
+    if (!form.donorId) return;
+
+    const donor = donors.find(
+      (d) => d.id === Number(form.donorId)
+    );
+
+    const today = new Date().toDateString();
+
+    setDonations([
+      {
+        id: Date.now(),
+        donorId: donor.id,
+        name: donor.name,
+        blood: donor.blood,
+        units: Number(form.units),
+        date: today,
+        camp: form.camp,
+        status: "Pending"
+      },
+      ...donations
+    ]);
+
+    setForm({ donorId: "", units: 1, camp: "-" });
+    setShowForm(false);
+  };
+
+  /* ===== FILTER ===== */
 
   const filteredDonations = donations.filter((d) => {
     const matchesFilter =
@@ -93,10 +128,66 @@ function Donations() {
           </p>
         </div>
 
-        <button className="btn btn-danger">
+        <button
+          className="btn btn-danger"
+          onClick={() => setShowForm(!showForm)}
+        >
           + Record Donation
         </button>
       </div>
+
+      {/* RECORD FORM */}
+      {showForm && (
+        <div className="card p-3 mb-4">
+          <div className="row g-2">
+            <div className="col-md-4">
+              <select
+                className="form-select"
+                value={form.donorId}
+                onChange={(e) =>
+                  setForm({ ...form, donorId: e.target.value })
+                }
+              >
+                <option value="">Select Donor</option>
+                {donors.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name} ({d.blood})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-md-2">
+              <input
+                type="number"
+                className="form-control"
+                value={form.units}
+                onChange={(e) =>
+                  setForm({ ...form, units: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="col-md-3">
+              <input
+                className="form-control"
+                placeholder="Camp"
+                value={form.camp}
+                onChange={(e) =>
+                  setForm({ ...form, camp: e.target.value })
+                }
+              />
+            </div>
+          </div>
+
+          <button
+            className="btn btn-success mt-3"
+            onClick={saveDonation}
+          >
+            Save Donation
+          </button>
+        </div>
+      )}
 
       {/* FILTERS */}
       <div className="d-flex align-items-center gap-2 mb-3">
@@ -144,16 +235,12 @@ function Donations() {
             {filteredDonations.map((d) => (
               <tr key={d.id}>
                 <td>
-                  <div className="d-flex align-items-center gap-2">
-                    <span className="badge bg-danger">
-                      {d.blood}
-                    </span>
-                    <div>
-                      <strong>{d.name}</strong>
-                      <div className="text-muted small">
-                        {d.units} unit(s)
-                      </div>
-                    </div>
+                  <span className="badge bg-danger me-2">
+                    {d.blood}
+                  </span>
+                  <strong>{d.name}</strong>
+                  <div className="small text-muted">
+                    {d.units} unit(s)
                   </div>
                 </td>
 
@@ -182,6 +269,7 @@ function Donations() {
                         onClick={() =>
                           approveDonation(
                             d.id,
+                            d.donorId,
                             d.blood,
                             d.units
                           )
@@ -189,11 +277,10 @@ function Donations() {
                       >
                         ✓
                       </button>
+
                       <button
                         className="btn btn-sm text-danger"
-                        onClick={() =>
-                          rejectDonation(d.id)
-                        }
+                        onClick={() => rejectDonation(d.id)}
                       >
                         ✕
                       </button>
