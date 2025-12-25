@@ -5,10 +5,12 @@ import { useDonors } from "../context/DonorContext";
 function Donations() {
   const { deductInventory } = useInventory();
   const { donors, addDonationToDonor } = useDonors();
+  
 
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
+  
 
   const [donations, setDonations] = useState([
     {
@@ -52,18 +54,22 @@ function Donations() {
 
   /* ===== ACTIONS ===== */
 
-  const approveDonation = (id, donorId, blood, units) => {
-    deductInventory(blood, -units);
+ const approveDonation = (id, donorId, blood, units) => {
+  // 1️⃣ Inventory increase
+  deductInventory(blood, -units);
 
-    const today = new Date().toISOString().split("T")[0];
-    addDonationToDonor(donorId, today);
+  // 2️⃣ Donor history update
+  const today = new Date().toISOString().split("T")[0];
+  addDonationToDonor(donorId, today, units, "Approved");
 
-    setDonations((prev) =>
-      prev.map((d) =>
-        d.id === id ? { ...d, status: "Approved" } : d
-      )
-    );
-  };
+  // 3️⃣ Donation status update
+  setDonations((prev) =>
+    prev.map((d) =>
+      d.id === id ? { ...d, status: "Approved" } : d
+    )
+  );
+};
+
 
   const rejectDonation = (id) => {
     setDonations((prev) =>
@@ -75,6 +81,11 @@ function Donations() {
 
   /* ===== ADD NEW DONATION ===== */
   const saveDonation = () => {
+    if (!form.donorId || form.units <= 0) {
+  alert("Invalid donation details");
+  return;
+}
+
     if (!form.donorId) return;
 
     const donor = donors.find(

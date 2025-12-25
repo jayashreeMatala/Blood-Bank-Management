@@ -6,43 +6,58 @@ export const DonorProvider = ({ children }) => {
   const [donors, setDonors] = useState([
     {
       id: 1,
-      name: "John Smith",
-      blood: "O+",
+      name: "Rahul Sharma",
+      phone: "+91 9876543210",
+      email: "rahul@gmail.com",
+      blood: "A+",
+      status: "Active",
       donations: 5,
-      lastDonation: "2025-01-15"
+      city: "Mumbai"
     },
     {
       id: 2,
-      name: "Sarah Johnson",
-      blood: "A+",
+      name: "Priya Patel",
+      phone: "+91 9876543211",
+      email: "priya@gmail.com",
+      blood: "O+",
+      status: "Active",
       donations: 3,
-      lastDonation: "2024-12-20"
-    },
-    {
-      id: 3,
-      name: "Michael Brown",
-      blood: "B-",
-      donations: 12,
-      lastDonation: "2025-02-01"
+      city: "Delhi"
     }
   ]);
+const updateDonor = (updated) => {
+  setDonors(prev =>
+    prev.map(d =>
+      d.id === updated.id
+        ? {
+            ...d,               // 🔥 purana data rakho
+            ...updated,          // ✏️ naya edited data
+            status: d.status ?? "Active",
+            donations: d.donations ?? 0
+          }
+        : d
+    )
+  );
+};
 
-  const addDonationToDonor = (donorId, date) => {
-    setDonors((prev) =>
-      prev.map((d) =>
-        d.id === donorId
-          ? {
-              ...d,
-              donations: d.donations + 1,
-              lastDonation: date
-            }
-          : d
-      )
-    );
-  };
+
+
+  // ✅ ADD NEW DONOR
+ const addDonor = (donor) => {
+  setDonors(prev => [
+    {
+      id: Date.now(),
+      status: "Active",
+      donations: 0,
+      ...donor
+    },
+    ...prev
+  ]);
+};
+
 
   return (
-    <DonorContext.Provider value={{ donors, addDonationToDonor }}>
+    <DonorContext.Provider value={{ donors, addDonor, updateDonor }}>
       {children}
     </DonorContext.Provider>
   );

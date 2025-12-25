@@ -3,6 +3,7 @@ import { createContext, useContext, useState } from "react";
 const InventoryContext = createContext();
 
 export const InventoryProvider = ({ children }) => {
+  /* ================= INVENTORY ================= */
   const [inventory, setInventory] = useState([
     { blood: "A+", units: 45 },
     { blood: "A-", units: 8 },
@@ -14,7 +15,15 @@ export const InventoryProvider = ({ children }) => {
     { blood: "AB-", units: 5 }
   ]);
 
-  // ✅ deduct stock
+  /* ================= RECENT DONATIONS ================= */
+  const [recentDonations, setRecentDonations] = useState([]);
+
+  /* ================= UPCOMING CAMPS ================= */
+  const [upcomingCamps, setUpcomingCamps] = useState([]);
+
+  /* ================= INVENTORY LOGIC ================= */
+
+  // ✅ deduct stock (used in Requests)
   const deductInventory = (blood, units) => {
     setInventory((prev) =>
       prev.map((item) =>
@@ -30,9 +39,34 @@ export const InventoryProvider = ({ children }) => {
     return inventory.find((i) => i.blood === blood)?.units || 0;
   };
 
+  /* ================= DASHBOARD HELPERS ================= */
+
+  // ✅ add donation → Dashboard "Recent Donations"
+  const addRecentDonation = (donation) => {
+    setRecentDonations((prev) => [
+      donation,
+      ...prev
+    ].slice(0, 5)); // last 5 only
+  };
+
+  // ✅ add camp → Dashboard "Upcoming Camps"
+  const addUpcomingCamp = (camp) => {
+    setUpcomingCamps((prev) => [...prev, camp]);
+  };
+
   return (
     <InventoryContext.Provider
-      value={{ inventory, deductInventory, getAvailableUnits }}
+      value={{
+        inventory,
+        deductInventory,
+        getAvailableUnits,
+
+        // 👇 NEW (Dashboard driven)
+        recentDonations,
+        addRecentDonation,
+        upcomingCamps,
+        addUpcomingCamp
+      }}
     >
       {children}
     </InventoryContext.Provider>
