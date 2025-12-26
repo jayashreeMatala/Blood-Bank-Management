@@ -11,9 +11,11 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
 function Dashboard() {
-  const { inventory } = useInventory();
+  // ✅ FIX: inventory → summary
+  const { summary } = useInventory();
 
-  if (!inventory || inventory.length === 0) {
+  // ✅ FIX: empty check
+  if (!summary || summary.length === 0) {
     return (
       <div className="text-center mt-5">
         <h4>No inventory data available</h4>
@@ -23,16 +25,16 @@ function Dashboard() {
   }
 
   /* ===== CALCULATIONS ===== */
-  const totalUnits = inventory.reduce((s, i) => s + i.units, 0);
-  const lowStock = inventory.filter((i) => i.units < 10);
+  const totalUnits = summary.reduce((s, i) => s + i.units, 0);
+  const lowStock = summary.filter((i) => i.units < 10);
 
   /* ===== BAR CHART ===== */
   const chartData = {
-    labels: inventory.map((i) => i.blood),
+    labels: summary.map((i) => i.blood),
     datasets: [
       {
-        data: inventory.map((i) => i.units),
-        backgroundColor: inventory.map((i) =>
+        data: summary.map((i) => i.units),
+        backgroundColor: summary.map((i) =>
           i.units < 10 ? "#dc3545" : "#28a745"
         ),
         borderRadius: 8
@@ -76,7 +78,7 @@ function Dashboard() {
       {/* ===== INVENTORY CARDS ===== */}
       <h5 className="fw-bold mb-3">Blood Inventory</h5>
       <div className="row g-3 mb-4">
-        {inventory.map((i, idx) => (
+        {summary.map((i, idx) => (
           <div className="col-md-3" key={idx}>
             <div
               className={`card h-100 shadow-sm ${
@@ -86,7 +88,9 @@ function Dashboard() {
               <div className="card-body">
                 <div className="d-flex justify-content-between mb-2">
                   <span className="badge bg-danger">{i.blood}</span>
-                  {i.units < 10 && <span className="badge bg-danger">Low</span>}
+                  {i.units < 10 && (
+                    <span className="badge bg-danger">Low</span>
+                  )}
                 </div>
 
                 <h3 className="fw-bold">{i.units}</h3>
