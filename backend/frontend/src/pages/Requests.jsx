@@ -1,222 +1,167 @@
 import { useState } from "react";
-import { useInventory } from "../context/InventoryContext";
+import { useRequests } from "../context/RequestContext";
 
 function Requests() {
-  const { inventory, deductInventory } = useInventory();
+  const { requests, approveRequest, rejectRequest, markFulfilled } = useRequests();
+  const [showNew, setShowNew] = useState(false);
 
-  const [filter, setFilter] = useState("All");
+
   const [search, setSearch] = useState("");
+  const [blood, setBlood] = useState("All");
+  const [status, setStatus] = useState("All");
 
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      blood: "A+",
-      units: 2,
-      patient: "David Chen",
-      hospital: "Metro General Hospital",
-      doctor: "Dr. Smith",
-      phone: "+1 555-0300",
-      requiredBy: "Feb 10, 2025",
-      priority: "Urgent",
-      status: "Pending"
-    },
-    {
-      id: 2,
-      blood: "O-",
-      units: 3,
-      patient: "Lisa Martinez",
-      hospital: "St. Mary's Medical Center",
-      doctor: "Dr. Johnson",
-      phone: "+1 555-0301",
-      requiredBy: "Feb 8, 2025",
-      priority: "Critical",
-      status: "Pending"
-    }
-  ]);
+  const filtered = requests.filter(r =>
+    (blood === "All" || r.blood === blood) &&
+    (status === "All" || r.status === status) &&
+    (r.hospital.toLowerCase().includes(search.toLowerCase()) ||
+      r.id.toLowerCase().includes(search.toLowerCase()))
+  );
 
-  /* ===== HELPERS ===== */
-
-  const getAvailableUnits = (blood) =>
-    inventory.find((i) => i.blood === blood)?.units || 0;
-
-  const approveRequest = (id, blood, units) => {
-    const available = getAvailableUnits(blood);
-
-    if (available < units) {
-      alert("❌ Not enough blood units available");
-      return;
-    }
-
-    // reduce inventory
-    deductInventory(blood, units);
-
-    // update request status
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === id ? { ...r, status: "Fulfilled" } : r
-      )
-    );
-  };
-
-  const rejectRequest = (id) => {
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === id ? { ...r, status: "Rejected" } : r
-      )
-    );
-  };
-
-  const filteredRequests = requests.filter((r) => {
-    const matchFilter =
-      filter === "All" || r.status === filter;
-    const matchSearch =
-      r.patient.toLowerCase().includes(search.toLowerCase()) ||
-      r.blood.toLowerCase().includes(search.toLowerCase());
-
-    return matchFilter && matchSearch;
-  });
+  const total = requests.length;
+  const pending = requests.filter(r => r.status === "Pending").length;
+  const emergency = requests.filter(r => r.priority === "Emergency").length;
+  const fulfilled = requests.filter(r => r.status === "Fulfilled").length;
 
   return (
-    <div>
-      {/* HEADER */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h2 className="fw-bold mb-0">Blood Requests</h2>
-          <p className="text-muted">
-            Manage blood requests from hospitals
-          </p>
-        </div>
+    <div className="container-fluid p-4">
 
-        <button className="btn btn-danger">
+      {/* HEADER */}
+      <div className="d-flex justify-content-between mb-4">
+        <div>
+          <h3 className="fw-bold">Blood Requests</h3>
+          <p className="text-muted">Manage incoming blood requests from hospitals</p>
+        </div>
+         <button
+          className="btn btn-danger"
+          onClick={() => setShowAdd(true)}
+        >
           + New Request
         </button>
+
       </div>
 
-      {/* FILTERS */}
-      <div className="d-flex align-items-center gap-2 mb-4">
-        {["All", "Pending", "Approved", "Fulfilled"].map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`btn btn-sm ${
-              filter === f
-                ? "btn-light border"
-                : "btn-outline-secondary"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-
-        <input
-          className="form-control ms-auto"
-          style={{ maxWidth: "260px" }}
-          placeholder="Search requests..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      {/* STATS */}
+      <div className="row g-3 mb-4">
+        <Stat title="Total Requests" value={total} />
+        <Stat title="Pending" value={pending} color="warning" />
+        <Stat title="Emergency" value={emergency} color="danger" />
+        <Stat title="Fulfilled" value={fulfilled} color="success" />
       </div>
 
-      {/* REQUEST CARDS */}
-      <div className="row g-4">
-        {filteredRequests.map((r) => {
-          const available = getAvailableUnits(r.blood);
+      {/* FILTER BAR */}
+      <div className="card shadow-sm mb-3">
+        <div className="card-body d-flex gap-3">
+          <input
+            className="form-control"
+            placeholder="Search by hospital, patient, or request ID..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <select className="form-select w-auto" onChange={e => setBlood(e.target.value)}>
+            <option value="All">All Blood Groups</option>
+            <option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option>
+            <option>O+</option><option>O-</option>
+            <option>AB+</option><option>AB-</option>
+          </select>
+          <select className="form-select w-auto" onChange={e => setStatus(e.target.value)}>
+            <option value="All">All Status</option>
+            <option>Pending</option>
+            <option>Approved</option>
+            <option>Fulfilled</option>
+          </select>
+        </div>
+      </div>
 
-          return (
-            <div className="col-md-6" key={r.id}>
-              <div className="card shadow-sm h-100">
-                <div className="card-body">
-                  {/* TOP */}
-                  <div className="d-flex align-items-center gap-3 mb-3">
-                    <span className="badge bg-danger fs-6">
-                      {r.blood}
-                      <div className="small">
-                        {r.units} units
-                      </div>
-                    </span>
+      {/* TABLE */}
+      <div className="card shadow-sm">
+        <table className="table align-middle mb-0">
+          <thead className="table-light">
+            <tr>
+              <th>Request ID</th>
+              <th>Hospital</th>
+              <th>Blood</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Required Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
 
-                    <div>
-                      <strong>{r.patient}</strong>
-                      <div className="d-flex gap-2 mt-1">
-                        <span className="badge bg-warning text-dark">
-                          {r.priority}
-                        </span>
-
-                        <span
-                          className={`badge ${
-                            r.status === "Pending"
-                              ? "bg-warning text-dark"
-                              : r.status === "Fulfilled"
-                              ? "bg-success"
-                              : "bg-danger"
-                          }`}
-                        >
-                          {r.status}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* DETAILS */}
-                  <div className="text-muted small mb-2">
-                    🏥 {r.hospital}
-                  </div>
-                  <div className="text-muted small mb-2">
-                    📞 {r.doctor} · {r.phone}
-                  </div>
-                  <div className="text-muted small mb-3">
-                    📅 Required by: {r.requiredBy}
-                  </div>
-
-                  {/* STOCK */}
-                  <div
-                    className={`alert py-2 small ${
-                      available < r.units
-                        ? "alert-danger"
-                        : "alert-success"
-                    }`}
-                  >
-                    {available < r.units
-                      ? `⚠ Only ${available} units available (Insufficient)`
-                      : `✓ ${available} units available in stock`}
-                  </div>
-
-                  {/* ACTIONS */}
+          <tbody>
+            {filtered.map(r => (
+              <tr key={r.id}>
+                <td>{r.id}</td>
+                <td>
+                  <strong>{r.hospital}</strong>
+                  <div className="small text-muted">{r.doctor}</div>
+                </td>
+                <td>
+                  <span className="badge bg-danger">
+                    {r.blood} ×{r.units}
+                  </span>
+                </td>
+                <td>
+                  <span className={`badge ${r.priority === "Emergency" ? "bg-danger" :
+                      r.priority === "Urgent" ? "bg-warning" : "bg-secondary"
+                    }`}>
+                    {r.priority}
+                  </span>
+                </td>
+                <td>
+                  <span className={`badge ${r.status === "Approved" ? "bg-success" :
+                      r.status === "Pending" ? "bg-warning text-dark" :
+                        "bg-info"
+                    }`}>
+                    {r.status}
+                  </span>
+                </td>
+                <td>{r.date}</td>
+                <td>
                   {r.status === "Pending" && (
-                    <div className="d-flex gap-2">
+                    <>
                       <button
-                        className="btn btn-success w-100"
-                        disabled={available < r.units}
-                        onClick={() =>
-                          approveRequest(
-                            r.id,
-                            r.blood,
-                            r.units
-                          )
-                        }
+                        className="btn btn-sm text-success me-2"
+                        onClick={() => approveRequest(r.id)}
                       >
                         ✓ Approve
                       </button>
-
                       <button
-                        className="btn btn-outline-danger w-100"
+                        className="btn btn-sm text-danger"
                         onClick={() => rejectRequest(r.id)}
                       >
                         ✕ Reject
                       </button>
-                    </div>
+                    </>
                   )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
 
-        {filteredRequests.length === 0 && (
-          <div className="text-center text-muted py-5">
-            No requests found
-          </div>
-        )}
+                  {r.status === "Approved" && (
+                    <button
+                      className="btn btn-sm text-primary"
+                      onClick={() => markFulfilled(r.id)}
+                    >
+                      ✔ Mark Fulfilled
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  );
+}
+
+function Stat({ title, value, color }) {
+  return (
+    <div className="col-md-3">
+      <div className={`card shadow-sm border-${color || "light"}`}>
+        <div className="card-body">
+          <small className="text-muted">{title}</small>
+          <h3 className={`fw-bold text-${color || "dark"}`}>{value}</h3>
+        </div>
       </div>
     </div>
   );
