@@ -12,10 +12,4 @@ code {
     monospace;
 }
 
-.add-stock-btn {
-  padding: 10px 22px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 10px;
-  box-shadow: 0 6px 14px rgba(220, 53, 69, 0.25);
-}
+

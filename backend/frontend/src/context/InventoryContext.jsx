@@ -3,6 +3,9 @@ import { createContext, useContext, useState } from "react";
 const InventoryContext = createContext();
 
 export const InventoryProvider = ({ children }) => {
+  /* =======================
+     BATCHES (MAIN SOURCE)
+  ======================= */
   const [batches, setBatches] = useState([
     {
       id: "BATCH-2024-001",
@@ -15,24 +18,56 @@ export const InventoryProvider = ({ children }) => {
     }
   ]);
 
-  // ✅ ADD BATCH
+  /* =======================
+     ADD / UPDATE / DELETE
+  ======================= */
   const addBatch = (batch) => {
     setBatches((prev) => [...prev, batch]);
   };
 
-  // ✅ DELETE BATCH
   const deleteBatch = (id) => {
     setBatches((prev) => prev.filter((b) => b.id !== id));
   };
 
-  // ✅ EDIT BATCH
   const updateBatch = (updatedBatch) => {
     setBatches((prev) =>
-      prev.map((b) => (b.id === updatedBatch.id ? updatedBatch : b))
+      prev.map((b) =>
+        b.id === updatedBatch.id ? updatedBatch : b
+      )
     );
   };
 
-  // ✅ SUMMARY CALCULATION (AUTO UPDATE)
+  /* =======================
+     DEDUCT BLOOD (REQUESTS)
+     FEFO-LIKE LOGIC
+  ======================= */
+  const deductBlood = (blood, units) => {
+    let remaining = Number(units);
+
+    setBatches((prev) =>
+      prev.map((b) => {
+        if (
+          b.blood === blood &&
+          b.status === "Stored" &&
+          remaining > 0
+        ) {
+          const deduct = Math.min(b.units, remaining);
+          remaining -= deduct;
+
+          return {
+            ...b,
+            units: b.units - deduct,
+            status: b.units - deduct === 0 ? "Issued" : b.status
+          };
+        }
+        return b;
+      })
+    );
+  };
+
+  /* =======================
+     SUMMARY (DASHBOARD USE)
+  ======================= */
   const summary = ["A+","A-","B+","B-","AB+","AB-","O+","O-"].map((bg) => {
     const totalUnits = batches
       .filter(
@@ -49,9 +84,22 @@ export const InventoryProvider = ({ children }) => {
     };
   });
 
+  /* =======================
+     INVENTORY = SUMMARY
+  ======================= */
+  const inventory = summary; // ✅ NOW CORRECT
+
   return (
     <InventoryContext.Provider
-      value={{ batches, summary, addBatch, deleteBatch, updateBatch }}
+      value={{
+        batches,
+        summary,
+        inventory,
+        addBatch,
+        deleteBatch,
+        updateBatch,
+        deductBlood
+      }}
     >
       {children}
     </InventoryContext.Provider>

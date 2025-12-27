@@ -1,78 +1,69 @@
 import { createContext, useContext, useState } from "react";
+import { useInventory } from "./InventoryContext"; // ✅ TOP IMPORT
 
 const RequestContext = createContext();
 
 export function RequestProvider({ children }) {
-  const [requests, setRequests] = useState([
-    {
-      id: "REQ-2024-001",
-      hospital: "Apollo Hospital",
-      doctor: "Dr. Sharma",
-      blood: "O+",
-      units: 4,
-      priority: "Emergency",
-      status: "Pending",
-      date: "Jan 14, 2025"
-    },
-    {
-      id: "REQ-2024-002",
-      hospital: "Fortis Hospital",
-      doctor: "Dr. Patel",
-      blood: "A+",
-      units: 2,
-      priority: "Urgent",
-      status: "Approved",
-      date: "Jan 15, 2025"
-    },
-    {
-      id: "REQ-2024-003",
-      hospital: "Max Hospital",
-      doctor: "Dr. Kumar",
-      blood: "B+",
-      units: 3,
-      priority: "Normal",
-      status: "Pending",
-      date: "Jan 18, 2025"
-    },
-    {
-      id: "REQ-2024-004",
-      hospital: "AIIMS",
-      doctor: "Dr. Singh",
-      blood: "AB+",
-      units: 1,
-      priority: "Normal",
-      status: "Fulfilled",
-      date: "Jan 20, 2025"
-    }
-  ]);
+  const [requests, setRequests] = useState([]);
 
+  // ✅ INVENTORY FUNCTION
+  const { deductBlood } = useInventory();
+
+  /* ======================
+     ADD REQUEST
+  ====================== */
+  const addRequest = (data) => {
+    setRequests((prev) => [
+      {
+        id: "REQ-" + Date.now(),
+        status: "Pending",
+        ...data
+      },
+      ...prev
+    ]);
+  };
+
+  /* ======================
+     APPROVE / REJECT
+  ====================== */
   const approveRequest = (id) => {
-    setRequests(prev =>
-      prev.map(r =>
+    setRequests((prev) =>
+      prev.map((r) =>
         r.id === id ? { ...r, status: "Approved" } : r
       )
     );
   };
 
   const rejectRequest = (id) => {
-    setRequests(prev => prev.filter(r => r.id !== id));
+    setRequests((prev) => prev.filter((r) => r.id !== id));
   };
 
+  /* ======================
+     MARK FULFILLED
+     👉 INVENTORY DEDUCT
+  ====================== */
   const markFulfilled = (id) => {
-    setRequests(prev =>
-      prev.map(r =>
-        r.id === id ? { ...r, status: "Fulfilled" } : r
-      )
+    setRequests((prev) =>
+      prev.map((r) => {
+        if (r.id === id) {
+          deductBlood(r.blood, Number(r.units)); // ✅ INVENTORY UPDATE
+          return { ...r, status: "Fulfilled" };
+        }
+        return r;
+      })
     );
   };
 
   return (
-    <RequestContext.Provider value={{
-      requests,
-      approveRequest,
-      rejectRequest,
-      markFulfilled
-    }}>
+    <RequestContext.Provider
+      value={{
+        requests,
+        addRequest,
+        approveRequest,
+        rejectRequest,
+        markFulfilled
+      }}
+    >
       {children}
     </RequestContext.Provider>
   );
