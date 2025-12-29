@@ -1,166 +1,131 @@
 import { useState } from "react";
+import { useCamps } from "../context/CampContext";
+import CreateCampModal from "../Components/CreateCampModal";
+import CampDetailsModal from "../Components/CampDetailsModal";
 
 function Camps() {
-  const [filter, setFilter] = useState("All");
-  const [search, setSearch] = useState("");
+  const { camps } = useCamps();
+  const [showCreate, setShowCreate] = useState(false);
+  const [selectedCamp, setSelectedCamp] = useState(null);
 
-  const camps = [
-    {
-      id: 1,
-      title: "Community Center Blood Camp",
-      organizer: "Red Cross Chicago",
-      status: "Upcoming",
-      date: "Wednesday, March 5, 2025",
-      time: "08:00 - 15:00",
-      location: "Downtown Community Center",
-      city: "Chicago",
-      coordinator: "Tom Anderson",
-      phone: "+1 555-0202",
-      donors: "0 / 80"
-    },
-    {
-      id: 2,
-      title: "University Campus Donation Day",
-      organizer: "University Medical Center",
-      status: "Upcoming",
-      date: "Tuesday, February 25, 2025",
-      time: "10:00 - 16:00",
-      location: "Student Union Building",
-      city: "Boston",
-      coordinator: "Dr. Maria Garcia",
-      phone: "+1 555-0201",
-      donors: "0 / 150"
-    },
-    {
-      id: 3,
-      title: "City Hospital Blood Drive",
-      organizer: "City Health Department",
-      status: "Upcoming",
-      date: "Thursday, February 20, 2025",
-      time: "09:00 - 17:00",
-      location: "City General Hospital, Main Lobby",
-      city: "New York",
-      coordinator: "Dr. James Lee",
-      phone: "+1 555-0200",
-      donors: "0 / 100"
-    }
-  ];
-
-  const filteredCamps = camps.filter((c) => {
-    const matchFilter =
-      filter === "All" || c.status === filter;
-    const matchSearch =
-      c.title.toLowerCase().includes(search.toLowerCase()) ||
-      c.city.toLowerCase().includes(search.toLowerCase());
-
-    return matchFilter && matchSearch;
-  });
+  /* ===== STATS ===== */
+  const upcoming = camps.filter(c => c.status === "Upcoming").length;
+  const ongoing = camps.filter(c => c.status === "Ongoing").length;
+  const totalRegistered = camps.reduce((s, c) => s + (c.registered || 0), 0);
+  const totalCollected = camps.reduce((s, c) => s + (c.collected || 0), 0);
 
   return (
-    <div>
+    <div className="container-fluid p-4">
+
       {/* HEADER */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="d-flex justify-content-between mb-4">
         <div>
-          <h2 className="fw-bold mb-0">Donation Camps</h2>
+          <h3 className="fw-bold">Donation Camps</h3>
           <p className="text-muted">
-            Manage blood donation events and campaigns
+            Manage blood donation drives and events
           </p>
         </div>
 
-        <button className="btn btn-danger">
+        <button
+          className="btn btn-danger btn-sm"
+          style={{ height: "38px" }}
+          onClick={() => setShowCreate(true)}
+
+        >
           + Create Camp
         </button>
       </div>
 
-      {/* FILTERS */}
-      <div className="d-flex align-items-center gap-2 mb-4">
-        {["All", "Upcoming", "Ongoing", "Completed"].map(
-          (f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`btn btn-sm ${
-                filter === f
-                  ? "btn-light border"
-                  : "btn-outline-secondary"
-              }`}
-            >
-              {f}
-            </button>
-          )
-        )}
-
-        <input
-          className="form-control ms-auto"
-          style={{ maxWidth: "260px" }}
-          placeholder="Search camps..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      {/* STATS */}
+      <div className="row g-3 mb-4">
+        <Stat title="Upcoming" value={upcoming} />
+        <Stat title="Ongoing" value={ongoing} />
+        <Stat title="Total Registered" value={totalRegistered} />
+        <Stat title="Units Collected" value={totalCollected} />
       </div>
 
-      {/* CAMP CARDS */}
+      {/* CAMPS GRID */}
       <div className="row g-4">
-        {filteredCamps.map((c) => (
-          <div className="col-md-4" key={c.id}>
-            <div className="card shadow-sm h-100">
-              {/* RED HEADER */}
-              <div className="bg-danger text-white p-3 rounded-top">
-                <div className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <h6 className="fw-bold mb-0">
-                      {c.title}
-                    </h6>
-                    <small>{c.organizer}</small>
-                  </div>
+        {camps.map(c => {
+          const target = Number(c.targetUnits || 0);
+          const collected = Number(c.collected || 0);
+          const progress =
+            target > 0 ? Math.min((collected / target) * 100, 100) : 0;
 
-                  <span className="badge bg-light text-primary">
+          return (
+            <div className="col-md-4" key={c.id}>
+              <div className="card shadow-sm h-100">
+
+                <div className="card-body">
+                  <span className="badge bg-primary mb-2">
                     {c.status}
                   </span>
-                </div>
-              </div>
 
-              {/* BODY */}
-              <div className="card-body">
-                <div className="mb-2">
-                  📅 <strong>{c.date}</strong>
-                  <div className="text-muted small">
-                    {c.time}
+                  <h5 className="fw-bold">{c.name}</h5>
+                  <div className="small text-muted">
+                    {c.venue}, {c.city}
+                  </div>
+                  <div className="small">{c.date}</div>
+
+                  {/* PROGRESS */}
+                  <div className="mt-3">
+                    <div className="small">Collection Progress</div>
+                    <div className="progress">
+                      <div
+                        className="progress-bar bg-danger"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <small>
+                      {collected}/{target} units
+                    </small>
+                  </div>
+
+                  {/* ACTIONS */}
+                  <div className="mt-3 d-flex gap-2">
+                    <button className="btn btn-danger btn-sm">
+                      Register
+                    </button>
+
+                    <button
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={() => setSelectedCamp(c)}
+                    >
+                      Details →
+                    </button>
                   </div>
                 </div>
 
-                <div className="mb-2">
-                  📍 {c.location}
-                  <div className="text-muted small">
-                    {c.city}
-                  </div>
-                </div>
-
-                <div className="mb-2">
-                  📞 {c.coordinator}
-                  <div className="text-muted small">
-                    {c.phone}
-                  </div>
-                </div>
-
-                <div className="text-muted small">
-                  👥 {c.donors} donors
-                </div>
-              </div>
-
-              {/* ACTIONS */}
-              <div className="d-flex justify-content-end gap-3 px-3 pb-3">
-                ✏️ 🗑️
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
+      </div>
 
-        {filteredCamps.length === 0 && (
-          <div className="text-center text-muted py-5">
-            No camps found
-          </div>
-        )}
+      {/* MODALS */}
+      {showCreate && (
+        <CreateCampModal onClose={() => setShowCreate(false)} />
+      )}
+
+      {selectedCamp && (
+        <CampDetailsModal
+          camp={selectedCamp}
+          onClose={() => setSelectedCamp(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ===== SMALL STAT CARD ===== */
+function Stat({ title, value }) {
+  return (
+    <div className="col-md-3">
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <small className="text-muted">{title}</small>
+          <h3 className="fw-bold">{value}</h3>
+        </div>
       </div>
     </div>
   );

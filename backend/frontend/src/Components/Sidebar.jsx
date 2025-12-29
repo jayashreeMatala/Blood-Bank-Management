@@ -51,6 +51,10 @@ function Sidebar() {
           </NavLink>
         </>
       )}
+      <NavLink to="/reports" className="d-block mb-2">
+  Reports
+</NavLink>
+
 
       <button
         className="btn btn-outline-danger w-100"

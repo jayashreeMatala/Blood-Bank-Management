@@ -3,7 +3,6 @@ import { AuthProvider } from "./context/AuthContext";
 
 import ProtectedRoute from "./Components/ProtectedRoute";
 import Sidebar from "./Components/Sidebar";
-import RoleRoute from "./Components/RoleRoute";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -14,6 +13,8 @@ import Requests from "./pages/Requests";
 import Camps from "./pages/Camps";
 import Transfers from "./pages/Transfers";
 import Appointments from "./pages/Appointments"; // ✅ ADD THIS
+import Reports from "./pages/Reports";
+
 
 
 function Layout({ children }) {
@@ -126,6 +127,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+  path="/reports"
+  element={
+    <ProtectedRoute>
+      <Layout><Reports /></Layout>
+    </ProtectedRoute>
+  }
+/>
+
 
         </Routes>
       </BrowserRouter>

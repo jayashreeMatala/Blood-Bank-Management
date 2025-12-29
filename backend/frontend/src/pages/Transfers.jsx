@@ -1,151 +1,79 @@
 import { useState } from "react";
-import { useInventory } from "../context/InventoryContext";
+import { useTransfers } from "../context/TransferContext";
+import NewTransferModal from "../Components/NewTransferModal";
+
+
 
 function Transfers() {
-  const { addInventory, deductInventory } = useInventory();
-
-  const [filter, setFilter] = useState("All");
+  const { transfers, receiveTransfer } = useTransfers();
   const [search, setSearch] = useState("");
+  const [blood, setBlood] = useState("All");
+  const [status, setStatus] = useState("All");
+  const [showNew, setShowNew] = useState(false);
 
-  const [records, setRecords] = useState([
-    {
-      id: 1,
-      type: "Receive",
-      blood: "A+",
-      units: 10,
-      source: "From: Regional Blood Center",
-      date: "Feb 1, 2025",
-      status: "Completed"
-    },
-    {
-      id: 2,
-      type: "Transfer",
-      blood: "O-",
-      units: 5,
-      source: "To: Emergency Hospital",
-      date: "Feb 3, 2025",
-      status: "Completed"
-    }
-  ]);
 
-  /* ===== FILTER ===== */
-  const filtered = records.filter((r) => {
-    const matchFilter =
-      filter === "All" || r.type === filter;
-    const matchSearch =
-      r.blood.toLowerCase().includes(search.toLowerCase()) ||
-      r.source.toLowerCase().includes(search.toLowerCase());
+  const filtered = transfers.filter(t =>
+    (blood === "All" || t.blood === blood) &&
+    (status === "All" || t.status === status) &&
+    (t.id.toLowerCase().includes(search.toLowerCase()) ||
+      t.from.toLowerCase().includes(search.toLowerCase()) ||
+      t.to.toLowerCase().includes(search.toLowerCase()))
+  );
 
-    return matchFilter && matchSearch;
-  });
-
-  /* ===== ACTIONS ===== */
-  const receiveBlood = () => {
-    addInventory("A+", 5);
-
-    setRecords([
-      {
-        id: Date.now(),
-        type: "Receive",
-        blood: "A+",
-        units: 5,
-        source: "From: City Blood Bank",
-        date: "Feb 10, 2025",
-        status: "Completed"
-      },
-      ...records
-    ]);
-  };
-
-  const transferBlood = () => {
-    deductInventory("O+", 3);
-
-    setRecords([
-      {
-        id: Date.now(),
-        type: "Transfer",
-        blood: "O+",
-        units: 3,
-        source: "To: District Hospital",
-        date: "Feb 10, 2025",
-        status: "Completed"
-      },
-      ...records
-    ]);
-  };
+  const initiated = transfers.filter(t => t.status === "Initiated").length;
+  const inTransit = transfers.filter(t => t.status === "In Transit").length;
+  const outgoing = transfers.filter(t => t.type === "Outgoing")
+    .reduce((s, t) => s + t.units, 0);
+  const incoming = transfers.filter(t => t.type === "Incoming")
+    .reduce((s, t) => s + t.units, 0);
 
   return (
-    <div>
-      {/* HEADER */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h2 className="fw-bold mb-0">Blood Transfers</h2>
-          <p className="text-muted">
-            Record blood receive and transfer operations
-          </p>
-        </div>
+    <div className="container-fluid p-4">
 
-        <button className="btn btn-danger px-4">
-          + Record Transfer
+      {/* HEADER */}
+      <div className="d-flex justify-content-between mb-4">
+        <div>
+          <h3 className="fw-bold">Stock Transfers</h3>
+          <p className="text-muted">Transfer blood units between locations</p>
+        </div>
+        <button className="btn btn-danger btn-sm" style={{ height: "38px" }}
+        onClick={() => setShowNew(true)}>
+          + New Transfer
         </button>
       </div>
 
-      {/* RECEIVE / TRANSFER CARDS */}
+      {/* STATS */}
       <div className="row g-3 mb-4">
-        <div className="col-md-6">
-          <div
-            className="p-4 rounded text-white"
-            style={{
-              background:
-                "linear-gradient(135deg,#1abc9c,#16a085)",
-              cursor: "pointer"
-            }}
-            onClick={receiveBlood}
-          >
-            <h5 className="fw-bold mb-1">⬇ Receive Blood</h5>
-            <small>Add new units to inventory</small>
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <div
-            className="p-4 rounded text-white"
-            style={{
-              background:
-                "linear-gradient(135deg,#4e73df,#224abe)",
-              cursor: "pointer"
-            }}
-            onClick={transferBlood}
-          >
-            <h5 className="fw-bold mb-1">⬆ Transfer Blood</h5>
-            <small>Send units to another location</small>
-          </div>
-        </div>
+        <Stat title="Initiated" value={initiated} />
+        <Stat title="In Transit" value={inTransit} />
+        <Stat title="Outgoing Units" value={outgoing} />
+        <Stat title="Incoming Units" value={incoming} />
       </div>
 
-      {/* FILTER + SEARCH */}
-      <div className="d-flex align-items-center gap-2 mb-3">
-        {["All", "Receive", "Transfer"].map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`btn btn-sm ${
-              filter === f
-                ? "btn-light border fw-semibold"
-                : "btn-outline-secondary"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
+      {/* FILTER */}
+      <div className="card shadow-sm mb-3">
+        <div className="card-body d-flex gap-3">
+          <input
+            className="form-control"
+            placeholder="Search by transfer ID or location..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
 
-        <input
-          className="form-control ms-auto"
-          style={{ maxWidth: "260px" }}
-          placeholder="Search transfers..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+          <select className="form-select w-auto" onChange={e => setBlood(e.target.value)}>
+            <option value="All">All Blood Groups</option>
+            <option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option>
+            <option>O+</option><option>O-</option>
+            <option>AB+</option><option>AB-</option>
+          </select>
+
+          <select className="form-select w-auto" onChange={e => setStatus(e.target.value)}>
+            <option value="All">All Status</option>
+            <option>Received</option>
+            <option>In Transit</option>
+          </select>
+        </div>
       </div>
 
       {/* TABLE */}
@@ -153,59 +81,79 @@ function Transfers() {
         <table className="table align-middle mb-0">
           <thead className="table-light">
             <tr>
+              <th>Transfer ID</th>
+              <th>Route</th>
+              <th>Blood</th>
               <th>Type</th>
-              <th>Blood Group</th>
-              <th>Units</th>
-              <th>Source / Destination</th>
-              <th>Date</th>
               <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {filtered.map((r) => (
-              <tr key={r.id}>
+            {filtered.map(t => (
+              <tr key={t.id}>
+                <td>{t.id}</td>
+
                 <td>
-                  <span
-                    className={`badge ${
-                      r.type === "Receive"
-                        ? "bg-success"
-                        : "bg-primary"
-                    }`}
-                  >
-                    {r.type === "Receive" ? "⬇ Receive" : "⬆ Transfer"}
-                  </span>
+                  🏥 {t.from} → {t.to}
                 </td>
 
                 <td>
                   <span className="badge bg-danger">
-                    {r.blood}
+                    {t.blood} ×{t.units}
                   </span>
                 </td>
 
-                <td>{r.units}</td>
-                <td>{r.source}</td>
-                <td>{r.date}</td>
                 <td>
-                  <span className="badge bg-success">
-                    {r.status}
+                  <span className={`badge ${
+                    t.type === "Outgoing" ? "bg-warning" : "bg-success"
+                  }`}>
+                    {t.type}
                   </span>
+                </td>
+
+                <td>
+                  <span className={`badge ${
+                    t.status === "Received" ? "bg-success" : "bg-primary"
+                  }`}>
+                    {t.status}
+                  </span>
+                </td>
+
+                <td>{t.date}</td>
+
+                <td>
+                  {t.status === "In Transit" && (
+                    <button
+                      className="btn btn-sm text-success"
+                      onClick={() => receiveTransfer(t.id)}
+                    >
+                      ✓ Receive
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
-
-            {filtered.length === 0 && (
-              <tr>
-                <td
-                  colSpan="6"
-                  className="text-center text-muted py-4"
-                >
-                  No transfers found
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
+      </div>
+{showNew && (
+  <NewTransferModal onClose={() => setShowNew(false)} />
+)}
+    </div>
+  );
+}
+
+function Stat({ title, value }) {
+  return (
+    <div className="col-md-3">
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <small className="text-muted">{title}</small>
+          <h3 className="fw-bold">{value}</h3>
+        </div>
       </div>
     </div>
   );
