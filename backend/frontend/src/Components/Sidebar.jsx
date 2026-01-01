@@ -1,68 +1,57 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { NavLink } from "react-router-dom";
+import {
+  FiHome,
+  FiUsers,
+  FiBox,
+  FiHeart,
+  FiCalendar,
+  FiTruck,
+  FiFileText,
+  FiActivity,
+
+} from "react-icons/fi";
+import "./Sidebar.css";
 
 function Sidebar() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
   return (
-    <div className="bg-dark text-white p-3" style={{ width: "230px" }}>
-      <h5 className="mb-4">🩸 Blood Bank</h5>
+    <div className="sidebar">
+      {/* LOGO */}
+      <div className="sidebar-logo">
+        <div className="logo-icon">🩸</div>
+        <span>Blood Bank</span>
+      </div>
 
-      <NavLink to="/" className="d-block mb-2">
-        Dashboard
-      </NavLink>
+      {/* MENU */}
+      <nav className="sidebar-menu">
+        <MenuItem to="/" icon={<FiHome />} text="Dashboard" />
+        <MenuItem to="/donors" icon={<FiUsers />} text="Donors" />
+        <MenuItem to="/inventory" icon={<FiBox />} text="Inventory" />
+        <MenuItem to="/donations" icon={<FiHeart />} text="Donations" />
+        <MenuItem to="/appointments" icon={<FiCalendar />} text="Appointments" />
+        <MenuItem to="/requests" icon={<FiHeart />} text="Requests" />
+        <MenuItem to="/camps" icon={<FiCalendar />} text="Camps" />
+        <MenuItem to="/transfers" icon={<FiTruck />} text="Transfers" />
+        <MenuItem to="/reports" icon={<FiFileText />} text="Reports" />
+        <MenuItem to="/screening" icon={<FiActivity />} text="Screening" />
 
-      <NavLink to="/donors" className="d-block mb-2">
-        Donors
-      </NavLink>
+      </nav>
 
-      <NavLink to="/inventory" className="d-block mb-2">
-        Inventory
-      </NavLink>
-
-      <NavLink to="/donations" className="d-block mb-2">
-        Donations
-      </NavLink>
-
-      {/* ✅ NEW: APPOINTMENTS (visible to all logged users) */}
-      <NavLink to="/appointments" className="d-block mb-2">
-        Appointments
-      </NavLink>
-
-      {/* 🔥 ADMIN ONLY */}
-      {user?.role === "admin" && (
-        <>
-          <NavLink to="/requests" className="d-block mb-2">
-            Requests
-          </NavLink>
-
-          <NavLink to="/camps" className="d-block mb-2">
-            Camps
-          </NavLink>
-
-          <NavLink to="/transfers" className="d-block mb-4">
-            Transfers
-          </NavLink>
-        </>
-      )}
-      <NavLink to="/reports" className="d-block mb-2">
-  Reports
-</NavLink>
-
-
-      <button
-        className="btn btn-outline-danger w-100"
-        onClick={handleLogout}
-      >
-        Logout
-      </button>
+      {/* LOGOUT */}
+      <button className="logout-btn">Logout</button>
     </div>
+  );
+}
+
+function MenuItem({ to, icon, text }) {
+  return (
+    <NavLink
+      to={to}
+      className="menu-item"
+      activeclassname="active"
+    >
+      <span className="menu-icon">{icon}</span>
+      <span>{text}</span>
+    </NavLink>
   );
 }
 

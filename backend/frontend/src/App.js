@@ -14,6 +14,8 @@ import Camps from "./pages/Camps";
 import Transfers from "./pages/Transfers";
 import Appointments from "./pages/Appointments"; // ✅ ADD THIS
 import Reports from "./pages/Reports";
+import HealthScreening from "./pages/HealthScreening";
+
 
 
 
@@ -132,6 +134,17 @@ function App() {
   element={
     <ProtectedRoute>
       <Layout><Reports /></Layout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/screening"
+  element={
+    <ProtectedRoute>
+      <Layout>
+        <HealthScreening />
+      </Layout>
     </ProtectedRoute>
   }
 />

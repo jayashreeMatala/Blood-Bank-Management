@@ -20,10 +20,14 @@ function Appointments() {
           <p className="text-muted">Schedule and manage donor appointments</p>
         </div>
 
-        <button className="btn btn-danger" onClick={() => setShowBook(true)}>
-          + Book Appointment
+         <button
+          className="btn btn-danger btn-sm"
+          style={{ height: "38px" }}
+          onClick={() => setShowBook(true)}
+        >
+          + Book Appointments
         </button>
-      </div>
+        </div>
 
       {/* STATS */}
       <div className="row g-3 mb-4">
@@ -56,14 +60,13 @@ function Appointments() {
             </div>
           ))}
         </div>
+
       </div>
 
       {showBook && (
-        <BookAppointmentModal
-          selectedDate={today}
-          onClose={() => setShowBook(false)}
-        />
-      )}
+  <BookAppointmentModal onClose={() => setShowBook(false)} />
+)}
+
     </div>
   );
 }
