@@ -4,7 +4,7 @@ const InventoryContext = createContext();
 
 export const InventoryProvider = ({ children }) => {
   /* =======================
-     BATCHES (MAIN SOURCE)
+     BATCHES (MAIN DATA)
   ======================= */
   const [batches, setBatches] = useState([
     {
@@ -38,8 +38,25 @@ export const InventoryProvider = ({ children }) => {
   };
 
   /* =======================
+     ADD BLOOD (DONATIONS)
+  ======================= */
+  const addBlood = (blood, units) => {
+    setBatches((prev) => [
+      ...prev,
+      {
+        id: "BATCH-" + Date.now(),
+        blood,
+        units: Number(units),
+        status: "Stored",
+        test: "Passed",
+        expiry: "2025-12-31",
+        location: "Main Storage"
+      }
+    ]);
+  };
+
+  /* =======================
      DEDUCT BLOOD (REQUESTS)
-     FEFO-LIKE LOGIC
   ======================= */
   const deductBlood = (blood, units) => {
     let remaining = Number(units);
@@ -66,7 +83,7 @@ export const InventoryProvider = ({ children }) => {
   };
 
   /* =======================
-     SUMMARY (DASHBOARD USE)
+     SUMMARY (DASHBOARD)
   ======================= */
   const summary = ["A+","A-","B+","B-","AB+","AB-","O+","O-"].map((bg) => {
     const totalUnits = batches
@@ -84,10 +101,7 @@ export const InventoryProvider = ({ children }) => {
     };
   });
 
-  /* =======================
-     INVENTORY = SUMMARY
-  ======================= */
-  const inventory = summary; // ✅ NOW CORRECT
+  const inventory = summary;
 
   return (
     <InventoryContext.Provider
@@ -98,6 +112,7 @@ export const InventoryProvider = ({ children }) => {
         addBatch,
         deleteBatch,
         updateBatch,
+        addBlood,
         deductBlood
       }}
     >

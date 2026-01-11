@@ -3,14 +3,12 @@ import { useInventory } from "../context/InventoryContext";
 import { useDonors } from "../context/DonorContext";
 
 function Donations() {
-  const { deductInventory } = useInventory();
+  const { addBlood } = useInventory();
   const { donors, addDonationToDonor } = useDonors();
-  
 
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
-  
 
   const [donations, setDonations] = useState([
     {
@@ -45,31 +43,27 @@ function Donations() {
     }
   ]);
 
-  /* ===== RECORD FORM STATE ===== */
   const [form, setForm] = useState({
     donorId: "",
     units: 1,
     camp: "-"
   });
 
-  /* ===== ACTIONS ===== */
+  /* =======================
+     APPROVE DONATION
+  ======================= */
+  const approveDonation = (id, donorId, blood, units) => {
+    addBlood(blood, Number(units));
 
- const approveDonation = (id, donorId, blood, units) => {
-  // 1️⃣ Inventory increase
-  deductInventory(blood, -units);
+    const today = new Date().toISOString().split("T")[0];
+    addDonationToDonor(donorId, today, units, "Approved");
 
-  // 2️⃣ Donor history update
-  const today = new Date().toISOString().split("T")[0];
-  addDonationToDonor(donorId, today, units, "Approved");
-
-  // 3️⃣ Donation status update
-  setDonations((prev) =>
-    prev.map((d) =>
-      d.id === id ? { ...d, status: "Approved" } : d
-    )
-  );
-};
-
+    setDonations((prev) =>
+      prev.map((d) =>
+        d.id === id ? { ...d, status: "Approved" } : d
+      )
+    );
+  };
 
   const rejectDonation = (id) => {
     setDonations((prev) =>
@@ -79,18 +73,20 @@ function Donations() {
     );
   };
 
-  /* ===== ADD NEW DONATION ===== */
   const saveDonation = () => {
     if (!form.donorId || form.units <= 0) {
-  alert("Invalid donation details");
-  return;
-}
-
-    if (!form.donorId) return;
+      alert("Invalid donation details");
+      return;
+    }
 
     const donor = donors.find(
       (d) => d.id === Number(form.donorId)
     );
+
+    if (!donor) {
+      alert("Donor not found");
+      return;
+    }
 
     const today = new Date().toDateString();
 
@@ -112,8 +108,6 @@ function Donations() {
     setShowForm(false);
   };
 
-  /* ===== FILTER ===== */
-
   const filteredDonations = donations.filter((d) => {
     const matchesFilter =
       filter === "All" || d.status === filter;
@@ -130,13 +124,10 @@ function Donations() {
 
   return (
     <div>
-      {/* HEADER */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h2 className="fw-bold mb-0">Donations</h2>
-          <p className="text-muted">
-            Manage blood donations and approvals
-          </p>
+          <p className="text-muted">Manage blood donations and approvals</p>
         </div>
 
         <button
@@ -147,7 +138,6 @@ function Donations() {
         </button>
       </div>
 
-      {/* RECORD FORM */}
       {showForm && (
         <div className="card p-3 mb-4">
           <div className="row g-2">
@@ -200,7 +190,6 @@ function Donations() {
         </div>
       )}
 
-      {/* FILTERS */}
       <div className="d-flex align-items-center gap-2 mb-3">
         {["All", "Pending", "Approved", "Rejected"].map((f) => (
           <button
@@ -229,7 +218,6 @@ function Donations() {
         />
       </div>
 
-      {/* TABLE */}
       <div className="card shadow-sm">
         <table className="table align-middle mb-0">
           <thead className="table-light">
@@ -254,10 +242,8 @@ function Donations() {
                     {d.units} unit(s)
                   </div>
                 </td>
-
                 <td>{d.date}</td>
                 <td>{d.camp}</td>
-
                 <td>
                   <span
                     className={`badge ${
@@ -271,7 +257,6 @@ function Donations() {
                     {d.status}
                   </span>
                 </td>
-
                 <td className="text-center">
                   {d.status === "Pending" && (
                     <>
@@ -288,7 +273,6 @@ function Donations() {
                       >
                         ✓
                       </button>
-
                       <button
                         className="btn btn-sm text-danger"
                         onClick={() => rejectDonation(d.id)}
@@ -303,10 +287,7 @@ function Donations() {
 
             {filteredDonations.length === 0 && (
               <tr>
-                <td
-                  colSpan="5"
-                  className="text-center text-muted py-4"
-                >
+                <td colSpan="5" className="text-center text-muted py-4">
                   No donations found
                 </td>
               </tr>

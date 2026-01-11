@@ -40,6 +40,20 @@ const updateDonor = (updated) => {
   );
 };
 
+const addDonationToDonor = (donorId, units = 1) => {
+  setDonors(prev =>
+    prev.map(d =>
+      d.id === donorId
+        ? {
+            ...d,
+            donations: (d.donations || 0) + units
+          }
+        : d
+    )
+  );
+};
+
+
 
 
   // ✅ ADD NEW DONOR
@@ -57,10 +71,11 @@ const updateDonor = (updated) => {
 
 
   return (
-    <DonorContext.Provider value={{ donors, addDonor, updateDonor }}>
+    <DonorContext.Provider value={{ donors, addDonor, updateDonor, addDonationToDonor}}>
       {children}
     </DonorContext.Provider>
   );
 };
+
 
 export const useDonors = () => useContext(DonorContext);
