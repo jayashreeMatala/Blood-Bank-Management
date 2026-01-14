@@ -8,20 +8,19 @@ import {
   FiTruck,
   FiFileText,
   FiActivity,
-
+  FiAward        // ✅ YEH ADD KAR
 } from "react-icons/fi";
 import "./Sidebar.css";
 
 function Sidebar() {
   return (
     <div className="sidebar">
-      {/* LOGO */}
+
       <div className="sidebar-logo">
         <div className="logo-icon">🩸</div>
         <span>Blood Bank</span>
       </div>
 
-      {/* MENU */}
       <nav className="sidebar-menu">
         <MenuItem to="/" icon={<FiHome />} text="Dashboard" />
         <MenuItem to="/donors" icon={<FiUsers />} text="Donors" />
@@ -34,9 +33,10 @@ function Sidebar() {
         <MenuItem to="/reports" icon={<FiFileText />} text="Reports" />
         <MenuItem to="/screening" icon={<FiActivity />} text="Screening" />
 
+        {/* ✅ ACHIEVEMENTS */}
+        <MenuItem to="/achievements" icon={<FiAward />} text="Achievements" />
       </nav>
 
-      {/* LOGOUT */}
       <button className="logout-btn">Logout</button>
     </div>
   );
@@ -46,8 +46,9 @@ function MenuItem({ to, icon, text }) {
   return (
     <NavLink
       to={to}
-      className="menu-item"
-      activeclassname="active"
+      className={({ isActive }) =>
+        isActive ? "menu-item active" : "menu-item"
+      }
     >
       <span className="menu-icon">{icon}</span>
       <span>{text}</span>

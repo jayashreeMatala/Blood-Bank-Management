@@ -12,9 +12,10 @@ import Donations from "./pages/Donations";
 import Requests from "./pages/Requests";
 import Camps from "./pages/Camps";
 import Transfers from "./pages/Transfers";
-import Appointments from "./pages/Appointments"; // ✅ ADD THIS
+import Appointments from "./pages/Appointments"; 
 import Reports from "./pages/Reports";
 import HealthScreening from "./pages/HealthScreening";
+import Achievements from "./pages/Achievements";
 
 
 
@@ -148,6 +149,18 @@ function App() {
     </ProtectedRoute>
   }
 />
+<Route
+  path="/achievements"
+  element={
+    <ProtectedRoute>
+      <Layout>
+        <Achievements />
+      </Layout>
+    </ProtectedRoute>
+  }
+/>
+
+
 
 
         </Routes>
@@ -155,5 +168,8 @@ function App() {
     </AuthProvider>
   );
 }
+
+
+
 
 export default App;
