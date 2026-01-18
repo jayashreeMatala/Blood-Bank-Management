@@ -1,87 +1,431 @@
-import { useState } from "react";
-import { useAppointments } from "../context/AppointmentContext";
-import BookAppointmentModal from "../Components/BookAppointmentModal";
+import React, { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-function Appointments() {
-  const { appointments, markCompleted } = useAppointments();
-  const [showBook, setShowBook] = useState(false);
-  const today = new Date().toISOString().slice(0, 10);
+const Appointments = () => {
+  const [showDetails, setShowDetails] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const userRole = "donor"; 
 
-  const todayCount = appointments.filter(a => a.date === today).length;
-  const upcoming = appointments.filter(a => a.date > today).length;
-  const completed = appointments.filter(a => a.status === "Completed").length;
+
 
   return (
-    <div className="container-fluid p-4">
+    <div
+      className="container-fluid p-4"
+      style={{ background: "#ffffff", minHeight: "100vh" }}
+    >
+      {/* HEADER */}
+      <div
+        className="p-4 rounded mb-4"
+        style={{
+          background: "#ffffff",
+          border: "1px solid #e5e7eb",
+        }}
+      >
+        <h4 style={{ color: "#111827" }}>📅 Appointment Management</h4>
+        <p className="text-muted mb-3">
+          Schedule, manage & track donor appointments
+        </p>
 
-      <div className="d-flex justify-content-between mb-4">
-        <div>
-          <h3 className="fw-bold">Appointments</h3>
-          <p className="text-muted">Schedule and manage donor appointments</p>
-        </div>
-
-         <button
-          className="btn btn-danger btn-sm"
-          style={{ height: "38px" }}
-          onClick={() => setShowBook(true)}
+        <button
+          className="btn btn-sm me-2"
+          style={{
+            background: "#ef4444",
+            color: "#fff",
+            border: "none",
+          }}
         >
-          + Book Appointments
+          + Book New Appointment
         </button>
-        </div>
+
+        <button
+          className="btn btn-sm"
+          style={{
+            border: "1px solid #ef4444",
+            color: "#ef4444",
+            background: "#fff",
+          }}
+          onClick={() => setShowHistory(true)}
+        >
+          View History
+        </button>
+      </div>
 
       {/* STATS */}
-      <div className="row g-3 mb-4">
-        <Stat title="Today" value={todayCount} />
-        <Stat title="Upcoming" value={upcoming} />
-        <Stat title="Completed" value={completed} />
-        <Stat title="Total" value={appointments.length} />
+      <div className="row mb-4">
+        <StatCard title="Today's Appointments" value="0" />
+        <StatCard title="Pending Approval" value="0" />
+        <StatCard title="Approved" value="0" />
+        <StatCard title="Emergency" value="0" />
       </div>
 
-      {/* LIST */}
-      <div className="card shadow-sm">
-        <div className="card-body">
-          {appointments.length === 0 && <p className="text-muted">No appointments</p>}
+      {/* FILTERS */}
+      <div className="card p-3 mb-4" style={{ border: "1px solid #e5e7eb" }}>
+        <h6 className="mb-3">🔍 Filters</h6>
+        <div className="row g-2">
+          <div className="col-md-4">
+            <input
+              className="form-control"
+              placeholder="Search by name or phone..."
+            />
+          </div>
+          <div className="col-md-4">
+            <select className="form-select">
+              <option>All Status</option>
+              <option>Requested</option>
+              <option>Approved</option>
+              <option>Confirmed</option>
+              <option>Completed</option>
+              <option>No-Show</option>
+              <option>Cancelled</option>
+            </select>
+          </div>
+          <div className="col-md-4">
+            <select className="form-select">
+              <option>All Dates</option>
+              <option>Today</option>
+              <option>Tomorrow</option>
+              <option>Upcoming</option>
+              <option>Past</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
-          {appointments.map(a => (
-            <div key={a.id} className="d-flex justify-content-between border-bottom py-2">
-              <div>
-                <strong>{a.time}</strong> — {a.donor}
-                <div className="small text-muted">{a.blood} · {a.type}</div>
+      {/* APPOINTMENT CARD */}
+      <div className="row">
+        <div className="col-md-4">
+          <div className="card shadow-sm" style={{ border: "1px solid #e5e7eb", borderRadius: 12 }}>
+            <div className="card-body">
+
+              {/* TOP ROW WITH RED AVATAR */}
+              <div className="d-flex justify-content-between align-items-start">
+                <div className="d-flex gap-3 align-items-center">
+                  {/* 🔴 RED USER ICON */}
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 10,
+                      background: "#ef4444",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      fill="white"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                    </svg>
+                  </div>
+
+                  <div>
+                    <h6 className="mb-0">Amit Kumar</h6>
+                    <small className="text-muted">
+                      +91 9876543212
+                    </small>
+                  </div>
+                </div>
+
+                {/* COMPLETED BADGE */}
+                <span
+                  style={{
+                    background: "#ecfdf5",
+                    color: "#16a34a",
+                    border: "1px solid #86efac",
+                    padding: "4px 10px",
+                    borderRadius: 8,
+                    fontSize: 12,
+                    fontWeight: 500,
+                  }}
+                >
+                  Completed
+                </span>
               </div>
 
-              {a.status !== "Completed" && (
-                <button
-                  className="btn btn-sm btn-success"
-                  onClick={() => markCompleted(a.id)}
-                >
-                  Mark Completed
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+              <hr />
 
+              <p className="mb-1">🩸 <strong>B+</strong></p>
+              <p className="mb-1">📅 Wednesday, Jan 15, 2025</p>
+              <p className="mb-1">⏰ 09:00 – 09:30</p>
+              <p className="mb-2">📍 Corporate Donation Camp</p>
+
+              <span
+                style={{
+                  border: "1px solid #d1d5db",
+                  padding: "4px 12px",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              >
+                Camp Donation
+              </span>
+
+              <button
+                className="btn w-100 mt-3"
+                style={{
+                  border: "1px solid #e5e7eb",
+                  background: "#fff",
+                }}
+                onClick={() => setShowDetails(true)}
+              >
+                View Details →
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {showBook && (
-  <BookAppointmentModal onClose={() => setShowBook(false)} />
+      {/* DETAILS MODAL */}
+   {showDetails && (
+  <div
+    className="modal d-block"
+    style={{ background: "rgba(0,0,0,0.6)" }}
+  >
+    <div className="modal-dialog modal-lg modal-dialog-centered">
+      <div className="modal-content p-4">
+
+        {/* HEADER */}
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="d-flex align-items-center gap-2">
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: "#ef4444",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+              }}
+            >
+              📅
+            </div>
+            <h5 className="mb-0">Appointment Details</h5>
+          </div>
+
+          <div className="d-flex align-items-center gap-2">
+            <span
+              style={{
+                background: "#fef3c7",
+                color: "#92400e",
+                border: "1px solid #facc15",
+                padding: "4px 12px",
+                borderRadius: 999,
+                fontSize: 12,
+              }}
+            >
+              Requested
+            </span>
+
+            <button className="btn-close" onClick={() => setShowDetails(false)} />
+          </div>
+        </div>
+
+        {/* DONOR INFO */}
+        <div
+          className="p-3 mb-3"
+          style={{
+            background: "#f9fafb",
+            borderRadius: 10,
+            border: "1px solid #e5e7eb",
+          }}
+        >
+          <h6 className="mb-3">Donor Information</h6>
+
+          <div className="row">
+            <div className="col-md-6 mb-2">
+              <small className="text-muted">Name</small>
+              <div>Amit Kumar</div>
+            </div>
+
+            <div className="col-md-6 mb-2">
+              <small className="text-muted">Blood Group</small>
+              <div style={{ color: "#ef4444", fontWeight: 600 }}>B+</div>
+            </div>
+
+            <div className="col-md-6">
+              <small className="text-muted">Phone</small>
+              <div>+91 9876543212</div>
+            </div>
+
+            <div className="col-md-6">
+              <small className="text-muted">Type</small>
+              <div>Donation</div>
+            </div>
+          </div>
+        </div>
+
+        {/* APPOINTMENT DETAILS */}
+        <div
+          className="p-3 mb-4"
+          style={{
+            background: "#ffffff",
+            borderRadius: 10,
+            border: "1px solid #e5e7eb",
+          }}
+        >
+          <h6 className="mb-3">Appointment Details</h6>
+
+          <div className="row">
+            <div className="col-md-6 mb-2">
+              <small className="text-muted">Date</small>
+              <div>Sunday, January 18, 2026</div>
+            </div>
+
+            <div className="col-md-6 mb-2">
+              <small className="text-muted">Time Slot</small>
+              <div>09:00 – 09:30</div>
+            </div>
+
+            <div className="col-md-12">
+              <small className="text-muted">Location</small>
+              <div>Blood Bank</div>
+            </div>
+          </div>
+        </div>
+
+        {/* ACTION BUTTONS */}
+        <div className="row g-2 mb-3">
+          <div className="col-md-6">
+            <button
+              className="btn w-100"
+              style={{ background: "#16a34a", color: "#fff" }}
+            >
+              ✔ Approve Appointment
+            </button>
+          </div>
+
+          <div className="col-md-6">
+            <button
+              className="btn w-100"
+              style={{
+                border: "1px solid #ef4444",
+                color: "#ef4444",
+                background: "#fff",
+              }}
+            >
+              ✖ Reject
+            </button>
+          </div>
+
+          <div className="col-md-12">
+            <button
+              className="btn w-100"
+              style={{
+                border: "1px solid #ef4444",
+                color: "#ef4444",
+                background: "#fff",
+              }}
+            >
+              🔁 Reschedule Appointment
+            </button>
+          </div>
+        </div>
+
+        {/* REASON */}
+        <div className="mb-3">
+          <label className="form-label">
+            Cancellation / Rejection Reason
+          </label>
+          <textarea
+            className="form-control"
+            rows={3}
+            placeholder="Enter reason for cancellation or rejection..."
+          />
+        </div>
+
+        {/* CANCEL */}
+        <button
+          className="btn w-100"
+          style={{ background: "#ef4444", color: "#fff" }}
+        >
+          🚫 Cancel Appointment
+        </button>
+        
+        {userRole === "donor" && (
+  <div
+    className="mt-4 p-4 text-center"
+    style={{
+      background: "#ecfdf5",
+      border: "1px solid #86efac",
+      borderRadius: 12,
+    }}
+  >
+    <div
+      style={{
+        width: 56,
+        height: 56,
+        borderRadius: "50%",
+        background: "#22c55e",
+        color: "#fff",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 28,
+        margin: "0 auto 12px",
+      }}
+    >
+      ✓
+    </div>
+
+    <h6 style={{ color: "#166534" }}>
+      Appointment Completed
+    </h6>
+
+    <small className="text-muted">
+      Donation record has been created
+    </small>
+  </div>
 )}
 
-    </div>
-  );
-}
-
-function Stat({ title, value }) {
-  return (
-    <div className="col-md-3">
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <small className="text-muted">{title}</small>
-          <h3 className="fw-bold">{value}</h3>
-        </div>
       </div>
     </div>
+  </div>
+)}
+
+
+      {/* HISTORY MODAL */}
+      {showHistory && (
+        <Modal onClose={() => setShowHistory(false)}>
+          <h5>Appointment History</h5>
+          <hr />
+          <p>Amit Kumar — Jan 15, 2025</p>
+        </Modal>
+      )}
+    </div>
   );
-}
+};
+
+/* SMALL COMPONENTS */
+
+const StatCard = ({ title, value }) => (
+  <div className="col-md-3 col-sm-6 mb-3">
+    <div className="card shadow-sm" style={{ border: "1px solid #e5e7eb" }}>
+      <div className="card-body">
+        <h5>{value}</h5>
+        <small className="text-muted">{title}</small>
+      </div>
+    </div>
+  </div>
+);
+
+const Modal = ({ children, onClose }) => (
+  <div className="modal d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
+    <div className="modal-dialog">
+      <div className="modal-content p-3">
+        <div className="text-end">
+          <button className="btn-close" onClick={onClose}></button>
+        </div>
+        {children}
+      </div>
+    </div>
+  </div>
+);
 
 export default Appointments;

@@ -7,8 +7,17 @@ const CertificateModal = ({ show, onHide, donor }) => {
   const certRef = useRef();
 
   const downloadPDF = () => {
-    html2pdf().from(certRef.current).save(`${donor.name}-certificate.pdf`);
+  const options = {
+    margin: 0,
+    filename: `${donor.name}-certificate.pdf`,
+    image: { type: "jpeg", quality: 1 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "px", format: [794, 1123], orientation: "portrait" },
   };
+
+  html2pdf().set(options).from(certRef.current).save();
+};
+
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>

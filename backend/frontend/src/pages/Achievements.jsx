@@ -2,8 +2,8 @@ import StatCard from "../Components/StatCard";
 import UnlockedCard from "../Components/UnlockedCard";
 import LockedCard from "../Components/LockedCard";
 import LeaderboardRow from "../Components/LeaderboardRow";
-import ProgressCard from "../Components/ProgressCard";
 import achievementData from "../data/achievementData";
+
 
 const Achievements = () => {
   return (
