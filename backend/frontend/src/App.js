@@ -12,11 +12,11 @@ import Donations from "./pages/Donations";
 import Requests from "./pages/Requests";
 import Camps from "./pages/Camps";
 import Transfers from "./pages/Transfers";
-import Appointments from "./pages/Appointments"; 
-import Reports from "./pages/Reports";
+import Appointments from "./pages/Appointments";
+import Analytics from "./pages/Analytics";
 import HealthScreening from "./pages/HealthScreening";
 import Achievements from "./pages/Achievements";
-
+import BloodCompatibility from "./pages/BloodCompatibility";
 
 
 
@@ -130,39 +130,47 @@ function App() {
               </ProtectedRoute>
             }
           />
+         <Route
+  path="/analytics"
+  element={
+    <ProtectedRoute>
+      <Layout>
+        <Analytics />
+      </Layout>
+    </ProtectedRoute>
+  }
+/>
+
           <Route
-  path="/reports"
-  element={
-    <ProtectedRoute>
-      <Layout><Reports /></Layout>
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/screening"
-  element={
-    <ProtectedRoute>
-      <Layout>
-        <HealthScreening />
-      </Layout>
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/achievements"
-  element={
-    <ProtectedRoute>
-      <Layout>
-        <Achievements />
-      </Layout>
-    </ProtectedRoute>
-  }
-/>
-
-
-
-
+            path="/screening"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <HealthScreening />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/achievements"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Achievements />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/compatibility"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <BloodCompatibility />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

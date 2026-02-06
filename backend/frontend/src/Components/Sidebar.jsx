@@ -8,7 +8,10 @@ import {
   FiTruck,
   FiFileText,
   FiActivity,
-  FiAward        // ✅ YEH ADD KAR
+  FiAward,
+  FiGitBranch,
+  FiBarChart
+
 } from "react-icons/fi";
 import "./Sidebar.css";
 
@@ -30,11 +33,11 @@ function Sidebar() {
         <MenuItem to="/requests" icon={<FiHeart />} text="Requests" />
         <MenuItem to="/camps" icon={<FiCalendar />} text="Camps" />
         <MenuItem to="/transfers" icon={<FiTruck />} text="Transfers" />
-        <MenuItem to="/reports" icon={<FiFileText />} text="Reports" />
+        <MenuItem to="/analytics" icon={<FiBarChart />} text="Analytics" />
         <MenuItem to="/screening" icon={<FiActivity />} text="Screening" />
-
-        {/* ✅ ACHIEVEMENTS */}
         <MenuItem to="/achievements" icon={<FiAward />} text="Achievements" />
+        <MenuItem to="/compatibility"icon={<FiGitBranch />}text="Blood Compatibility"/>
+
       </nav>
 
       <button className="logout-btn">Logout</button>

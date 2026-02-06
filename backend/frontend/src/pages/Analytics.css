@@ -1,0 +1,64 @@
+.top-donors-card {
+  border-radius: 14px;
+}
+
+.donor-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.donor-item:last-child {
+  border-bottom: none;
+}
+
+.donor-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rank {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.rank.gold {
+  background: #fbbf24;
+}
+
+.rank.silver {
+  background: #9ca3af;
+}
+
+.rank.bronze {
+  background: #fb923c;
+}
+
+.rank.gray {
+  background: #d1d5db;
+  color: #374151;
+}
+
+.donor-left small {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.donation-badge {
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 8px;
+}
