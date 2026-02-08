@@ -1,8 +1,8 @@
 
 import { useInventory } from "../context/InventoryContext";
 import { useState } from "react";
-import AddStockModal from "../Components/AddStockModal";
-import EditStockModal from "../Components/EditStockModal";
+import AddStockModal from "../components/AddStockModal";
+import EditStockModal from "../components/EditStockModal";
 
 
 

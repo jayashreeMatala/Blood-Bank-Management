@@ -1,134 +1,239 @@
-import { useState } from "react";
-import { useCamps } from "../context/CampContext";
-import CreateCampModal from "../Components/CreateCampModal";
-import CampDetailsModal from "../Components/CampDetailsModal";
+import React, { useState } from "react";
+import "./Camps.css";
+import CreateCampModal from "../components/CreateCampModal";
+import RegisterCampModal from "../components/RegisterCampModal";
+import CampDetailsModal from "../components/CampDetailsModal";
 
-function Camps() {
-  const { camps } = useCamps();
-  const [showCreate, setShowCreate] = useState(false);
-  const [selectedCamp, setSelectedCamp] = useState(null);
+const Camps = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [selectedCamp, setSelectedCamp] = useState(null); // ✅ ONLY ONCE
 
-  /* ===== STATS ===== */
-  const upcoming = camps.filter(c => c.status === "Upcoming").length;
-  const ongoing = camps.filter(c => c.status === "Ongoing").length;
-  const totalRegistered = camps.reduce((s, c) => s + (c.registered || 0), 0);
-  const totalCollected = camps.reduce((s, c) => s + (c.collected || 0), 0);
+  const stats = [
+    { title: "Upcoming Camps", value: 4, color: "blue" },
+    { title: "Active Now", value: 0, color: "green" },
+    { title: "Total Donors", value: 257, color: "purple" },
+    { title: "Units Collected", value: 142, color: "red" },
+  ];
+
+  const [camps, setCamps] = useState([
+    {
+      title: "Blood Donation Camp",
+      location: "Mumbai Central",
+      date: "February 2, 2026",
+      time: "09:00 - 17:00",
+      collected: 0,
+      total: 100,
+      status: "Upcoming",
+    },
+    {
+      title: "Winter Blood Drive 2024",
+      location: "Community Center, Mumbai",
+      date: "January 20, 2026",
+      time: "09:00 - 17:00",
+      collected: 45,
+      total: 100,
+      status: "Upcoming",
+    },
+    {
+      title: "Corporate Donation Camp",
+      location: "TechPark Convention Hall",
+      date: "January 15, 2026",
+      time: "10:00 - 16:00",
+      collected: 32,
+      total: 75,
+      status: "Upcoming",
+    },
+    {
+      title: "University Blood Camp",
+      location: "Delhi University Campus",
+      date: "December 20, 2024",
+      time: "09:00 - 15:00",
+      collected: 142,
+      total: 150,
+      status: "Completed",
+    },
+  ]);
+
+  // CREATE CAMP
+  const handleCreateCamp = (newCamp) => {
+    setCamps((prev) => [newCamp, ...prev]);
+  };
+
+  // REGISTER SUCCESS
+  const handleRegisterSuccess = (campTitle) => {
+    setCamps((prev) =>
+      prev.map((camp) =>
+        camp.title === campTitle
+          ? { ...camp, collected: camp.collected + 1 }
+          : camp
+      )
+    );
+  };
+
+  // UPDATE CAMP (FROM DETAILS EDIT)
+  const handleUpdateCamp = (updatedCamp) => {
+    setCamps((prev) =>
+      prev.map((c) =>
+        c.title === updatedCamp.title ? updatedCamp : c
+      )
+    );
+  };
 
   return (
-    <div className="container-fluid p-4">
+    <div className="camps-page">
+{/* HERO HEADER */}
+<div className="camp-hero">
+  <div className="hero-left">
+    <h1>Blood Donation Camps</h1>
+    <p>Join our life-saving events and make a difference</p>
 
-      {/* HEADER */}
-      <div className="d-flex justify-content-between mb-4">
-        <div>
-          <h3 className="fw-bold">Donation Camps</h3>
-          <p className="text-muted">
-            Manage blood donation drives and events
-          </p>
-        </div>
+    <button
+      className="organize-btn"
+      onClick={() => setShowModal(true)}
+    >
+      + Organize a Camp
+    </button>
+  </div>
 
-        <button
-          className="btn btn-danger btn-sm"
-          style={{ height: "38px" }}
-          onClick={() => setShowCreate(true)}
+  <div className="hero-right">
+    <div className="calendar-circle">
+      📅
+    </div>
+  </div>
+</div>
 
-        >
-          + Create Camp
-        </button>
+{/* STATS */}
+<div className="stats-wrapper">
+  <div className="stat-card blue">
+    <div className="stat-icon">📅</div>
+    <p>Upcoming Camps</p>
+    <h2>4</h2>
+  </div>
+
+  <div className="stat-card green">
+    <div className="stat-icon">⏱</div>
+    <p>Active Now</p>
+    <h2>0</h2>
+  </div>
+
+  <div className="stat-card purple">
+    <div className="stat-icon">👥</div>
+    <p>Total Donors</p>
+    <h2>259</h2>
+  </div>
+
+  <div className="stat-card red">
+    <div className="stat-icon">🎯</div>
+    <p>Units Collected</p>
+    <h2>142</h2>
+  </div>
+</div>
+
+
+
+      {/* FILTER */}
+      <div className="filter-bar">
+        <input placeholder="Search camps by name, venue, or city..." />
+        <select>
+          <option>All Status</option>
+          <option>Upcoming</option>
+          <option>Completed</option>
+        </select>
+        <button className="clear-btn">✖ Clear</button>
       </div>
 
-      {/* STATS */}
-      <div className="row g-3 mb-4">
-        <Stat title="Upcoming" value={upcoming} />
-        <Stat title="Ongoing" value={ongoing} />
-        <Stat title="Total Registered" value={totalRegistered} />
-        <Stat title="Units Collected" value={totalCollected} />
-      </div>
-
-      {/* CAMPS GRID */}
-      <div className="row g-4">
-        {camps.map(c => {
-          const target = Number(c.targetUnits || 0);
-          const collected = Number(c.collected || 0);
-          const progress =
-            target > 0 ? Math.min((collected / target) * 100, 100) : 0;
+      {/* CAMPS */}
+      <div className="camp-grid">
+        {camps.map((c, i) => {
+          const percent = Math.min((c.collected / c.total) * 100, 100);
 
           return (
-            <div className="col-md-4" key={c.id}>
-              <div className="card shadow-sm h-100">
+            <div className="camp-card" key={i}>
+              <div className="camp-top">
+                <span className="badge register">Register Now</span>
+                <span className="badge status">{c.status}</span>
+                <div className="icon">📅</div>
+                <h5>{c.title}</h5>
+                <small>Saving Lives Together</small>
+              </div>
 
-                <div className="card-body">
-                  <span className="badge bg-primary mb-2">
-                    {c.status}
+              <div className="camp-body">
+                <p>📍 {c.location}</p>
+                <p>📅 {c.date}</p>
+                <p>⏰ {c.time}</p>
+
+                <div className="progress-text">
+                  Collection Progress
+                  <span>
+                    {c.collected}/{c.total} units
                   </span>
-
-                  <h5 className="fw-bold">{c.name}</h5>
-                  <div className="small text-muted">
-                    {c.venue}, {c.city}
-                  </div>
-                  <div className="small">{c.date}</div>
-
-                  {/* PROGRESS */}
-                  <div className="mt-3">
-                    <div className="small">Collection Progress</div>
-                    <div className="progress">
-                      <div
-                        className="progress-bar bg-danger"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    <small>
-                      {collected}/{target} units
-                    </small>
-                  </div>
-
-                  {/* ACTIONS */}
-                  <div className="mt-3 d-flex gap-2">
-                    <button className="btn btn-danger btn-sm">
-                      Register
-                    </button>
-
-                    <button
-                      className="btn btn-outline-secondary btn-sm"
-                      onClick={() => setSelectedCamp(c)}
-                    >
-                      Details →
-                    </button>
-                  </div>
                 </div>
 
+                <div className="progress-bar">
+                  <div className="fill" style={{ width: `${percent}%` }} />
+                </div>
+
+                <div className="camp-actions">
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => {
+                      setSelectedCamp(c);
+                      setShowRegister(true);
+                    }}
+                  >
+                    Register
+                  </button>
+
+                  <button
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={() => {
+                      setSelectedCamp(c);
+                      setShowDetails(true);
+                    }}
+                  >
+                    Details →
+                  </button>
+                </div>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* MODALS */}
-      {showCreate && (
-        <CreateCampModal onClose={() => setShowCreate(false)} />
-      )}
-
-      {selectedCamp && (
-        <CampDetailsModal
-          camp={selectedCamp}
-          onClose={() => setSelectedCamp(null)}
+      {/* CREATE CAMP MODAL */}
+      {showModal && (
+        <CreateCampModal
+          onClose={() => setShowModal(false)}
+          onCreate={handleCreateCamp}
         />
       )}
-    </div>
-  );
-}
 
-/* ===== SMALL STAT CARD ===== */
-function Stat({ title, value }) {
-  return (
-    <div className="col-md-3">
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <small className="text-muted">{title}</small>
-          <h3 className="fw-bold">{value}</h3>
-        </div>
-      </div>
+      {/* REGISTER MODAL */}
+      {showRegister && selectedCamp && (
+        <RegisterCampModal
+          camp={selectedCamp}
+          onClose={() => setShowRegister(false)}
+          onRegister={handleRegisterSuccess}
+        />
+      )}
+
+      {/* DETAILS MODAL */}
+      {showDetails && selectedCamp && (
+  <CampDetailsModal
+    camp={selectedCamp}
+    onClose={() => setShowDetails(false)}
+    onUpdate={handleUpdateCamp}
+    onRegister={() => {
+      setShowRegister(true);
+    }}
+  />
+)}
+
+
     </div>
   );
-}
+};
 
 export default Camps;

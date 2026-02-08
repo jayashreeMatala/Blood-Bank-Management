@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDonors } from "../context/DonorContext";
-import DonorProfileModal from "../Components/DonorProfileModal";
-import RegisterDonorModal from "../Components/RegisterDonorModal";
+import DonorProfileModal from "../components/DonorProfileModal";
+import RegisterDonorModal from "../components/RegisterDonorModal";
 
 
 function Donors() {

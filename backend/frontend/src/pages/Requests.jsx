@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRequests } from "../context/RequestContext";
-import NewRequestModal from "../Components/NewRequestModal";
+import NewRequestModal from "../components/NewRequestModal";
 
 
 function Requests() {

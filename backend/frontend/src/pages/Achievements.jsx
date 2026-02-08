@@ -1,7 +1,7 @@
-import StatCard from "../Components/StatCard";
-import UnlockedCard from "../Components/UnlockedCard";
-import LockedCard from "../Components/LockedCard";
-import LeaderboardRow from "../Components/LeaderboardRow";
+import StatCard from "../components/StatCard";
+import UnlockedCard from "../components/UnlockedCard";
+import LockedCard from "../components/LockedCard";
+import LeaderboardRow from "../components/LeaderboardRow";
 import achievementData from "../data/achievementData";
 
 

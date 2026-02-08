@@ -1,110 +1,125 @@
-import { useState } from "react";
-import { useAppointments } from "../context/AppointmentContext";
+import React, { useState } from "react";
+import "./BookAppointment.css";
 
-function BookAppointmentModal({ onClose, selectedDate }) {
-  const { addAppointment } = useAppointments();
+const BookAppointmentModal = ({ onClose }) => {
+  const [step, setStep] = useState(1);
 
   const [form, setForm] = useState({
-    donor: "",
+    donorName: "",
     phone: "",
-    blood: "",
-    type: "Whole Blood",
-    date: selectedDate,
-    time: "09:00",
-    location: "Main Blood Bank",
-    notes: ""
+    bloodGroup: "",
+    date: "2026-02-02",
+    time: "",
+    location: "Tata",
+    notes: "",
   });
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-
-  const submit = () => {
-    if (!form.donor || !form.phone || !form.date || !form.time) {
-      alert("Required fields missing");
-      return;
-    }
-
-    addAppointment(form);
-    onClose();
   };
 
   return (
-    <div className="modal fade show d-block" style={{ background: "#00000080" }}>
-      <div className="modal-dialog modal-lg modal-dialog-centered">
-        <div className="modal-content">
-
-          <div className="modal-header">
-            <h5 className="modal-title">📅 Book Appointment</h5>
-            <button className="btn-close" onClick={onClose}></button>
-          </div>
-
-          <div className="modal-body">
-            <div className="row g-3">
-
-              <div className="col-md-6">
-                <label>Donor Name *</label>
-                <input className="form-control" name="donor" onChange={handleChange} />
-              </div>
-
-              <div className="col-md-6">
-                <label>Phone Number *</label>
-                <input className="form-control" name="phone" onChange={handleChange} />
-              </div>
-
-              <div className="col-md-6">
-                <label>Blood Group</label>
-                <select className="form-select" name="blood" onChange={handleChange}>
-                  <option>Select blood group</option>
-                  <option>A+</option><option>A-</option>
-                  <option>B+</option><option>B-</option>
-                  <option>O+</option><option>O-</option>
-                  <option>AB+</option><option>AB-</option>
-                </select>
-              </div>
-
-              <div className="col-md-6">
-                <label>Donation Type</label>
-                <select className="form-select" name="type" onChange={handleChange}>
-                  <option>Whole Blood</option>
-                  <option>Plasma</option>
-                </select>
-              </div>
-
-              <div className="col-md-6">
-                <label>Appointment Date *</label>
-                <input type="date" className="form-control" name="date" value={form.date} onChange={handleChange} />
-              </div>
-
-              <div className="col-md-6">
-                <label>Appointment Time *</label>
-                <select className="form-select" name="time" onChange={handleChange}>
-                  {["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","14:00","14:30","15:00","15:30"].map(t =>
-                    <option key={t}>{t}</option>
-                  )}
-                </select>
-              </div>
-
-              <div className="col-md-12">
-                <label>Notes</label>
-                <textarea className="form-control" rows="3" name="notes" onChange={handleChange} />
-              </div>
-
-            </div>
-          </div>
-
-          <div className="modal-footer">
-            <button className="btn btn-outline-secondary" onClick={onClose}>
-              Cancel
-            </button>
-            <button className="btn btn-danger" onClick={submit}>
-              Book Appointment
-            </button>
-          </div>
-
+    <div className="modal-overlay">
+      <div className="modal-box">
+        <div className="modal-header">
+          <h3>Book Appointment</h3>
+          <button onClick={onClose}>✖</button>
         </div>
+
+        {/* STEP INDICATOR */}
+        <div className="steps">
+          <div className={step === 1 ? "active" : ""}>1 Donor Info</div>
+          <div className={step === 2 ? "active" : ""}>2 Appointment</div>
+          <div className={step === 3 ? "active" : ""}>3 Confirm</div>
+        </div>
+
+        {/* STEP 1 */}
+        {step === 1 && (
+          <>
+            <input
+              name="donorName"
+              placeholder="Full Name"
+              value={form.donorName}
+              onChange={handleChange}
+            />
+
+            <input
+              name="phone"
+              placeholder="Phone"
+              value={form.phone}
+              onChange={handleChange}
+            />
+
+            <select
+              name="bloodGroup"
+              value={form.bloodGroup}
+              onChange={handleChange}
+            >
+              <option value="">Select Blood Group</option>
+              <option>A+</option>
+              <option>A-</option>
+              <option>B+</option>
+              <option>B-</option>
+              <option>O+</option>
+              <option>O-</option>
+            </select>
+
+            <button className="btn-next" onClick={() => setStep(2)}>
+              Continue
+            </button>
+          </>
+        )}
+
+        {/* STEP 2 */}
+        {step === 2 && (
+          <>
+            <input type="date" name="date" value={form.date} readOnly />
+
+            <div className="time-grid">
+              {["09:00", "09:30", "10:00", "10:30"].map((t) => (
+                <button
+                  key={t}
+                  className={form.time === t ? "time active" : "time"}
+                  onClick={() => setForm({ ...form, time: t })}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              name="notes"
+              placeholder="Notes (optional)"
+              onChange={handleChange}
+            />
+
+            <div className="actions">
+              <button onClick={() => setStep(1)}>Back</button>
+              <button onClick={() => setStep(3)}>Review</button>
+            </div>
+          </>
+        )}
+
+        {/* STEP 3 */}
+        {step === 3 && (
+          <>
+            <h4>Review Appointment</h4>
+
+            <p><b>Donor:</b> {form.donorName}</p>
+            <p><b>Blood Group:</b> {form.bloodGroup}</p>
+            <p><b>Date:</b> {form.date}</p>
+            <p><b>Time:</b> {form.time}</p>
+            <p><b>Location:</b> {form.location}</p>
+
+            <div className="actions">
+              <button onClick={() => setStep(2)}>Back</button>
+              <button className="confirm">Confirm Booking</button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
-}
+};
 
 export default BookAppointmentModal;

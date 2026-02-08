@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTransfers } from "../context/TransferContext";
-import NewTransferModal from "../Components/NewTransferModal";
+import NewTransferModal from "../components/NewTransferModal";
 
 
 

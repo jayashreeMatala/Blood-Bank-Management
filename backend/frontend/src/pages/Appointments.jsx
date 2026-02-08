@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+
 const Appointments = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [showHistory, setShowHistory] = useState(false);

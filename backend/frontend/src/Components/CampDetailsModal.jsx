@@ -1,69 +1,100 @@
-function CampDetailsModal({ camp, onClose }) {
+import React, { useState } from "react";
+import CreateCampModal from "./CreateCampModal";
+import "./CampDetailsModal.css";
+
+const CampDetailsModal = ({ camp, onClose, onUpdate, onRegister }) => {
+  const [editMode, setEditMode] = useState(false);
+
+  if (!camp) return null;
+
+  // EDIT MODE → reuse CreateCampModal
+  if (editMode) {
+    return (
+      <CreateCampModal
+        editData={camp}
+        onClose={() => setEditMode(false)}
+        onCreate={(updatedCamp) => {
+          onUpdate(updatedCamp);
+          setEditMode(false);
+        }}
+      />
+    );
+  }
+
   return (
-    <div className="modal fade show d-block" style={{ background: "#00000080" }}>
+    <div className="modal d-block camp-details-backdrop">
       <div className="modal-dialog modal-lg modal-dialog-centered">
-        <div className="modal-content">
+        <div className="modal-content camp-details-card">
 
           {/* HEADER */}
-          <div className="modal-header">
+          <div className="camp-details-header">
             <div>
-              <h5 className="fw-bold mb-1">Camp Details</h5>
-              <h6 className="fw-bold">{camp.name}</h6>
-              <p className="text-muted mb-0">{camp.description}</p>
+              <h5>Camp Details</h5>
+              <h3>{camp.title}</h3>
             </div>
-
-            <span className="badge bg-primary">{camp.status}</span>
-
+            <span className="status-badge">{camp.status}</span>
             <button className="btn-close" onClick={onClose}></button>
           </div>
 
-          {/* BODY */}
-          <div className="modal-body">
-
-            {/* INFO */}
-            <div className="mb-4 p-3 bg-light rounded">
-              <div className="mb-2">📍 {camp.venue}, {camp.city}</div>
-              <div className="mb-2">📅 {camp.date}</div>
-              <div className="mb-2">⏰ {camp.startTime} – {camp.endTime}</div>
-              <div className="mb-2">🏢 {camp.organizer}</div>
-              <div>📞 {camp.phone}</div>
-            </div>
-
-            {/* STATS */}
-            <div className="row g-3 mb-3">
-              <div className="col-md-6">
-                <div className="p-3 bg-primary bg-opacity-10 rounded text-center">
-                  <h4 className="fw-bold">{camp.registered}</h4>
-                  <small className="text-primary">Registered</small>
-                </div>
-              </div>
-
-              <div className="col-md-6">
-                <div className="p-3 bg-danger bg-opacity-10 rounded text-center">
-                  <h4 className="fw-bold">
-                    {camp.collected}/{camp.target}
-                  </h4>
-                  <small className="text-danger">Collected</small>
-                </div>
-              </div>
-            </div>
-
-            {/* ACTIONS */}
-            <div className="d-flex justify-content-between">
-              <button className="btn btn-outline-secondary">
-                ✏ Edit
-              </button>
-
-              <button className="btn btn-danger">
-                Register Donors
-              </button>
-            </div>
-
+          {/* DESCRIPTION */}
+          <div className="camp-description">
+            {camp.description || "Annual blood donation camp"}
           </div>
+
+          {/* INFO GRID */}
+          <div className="details-grid">
+            <div className="info-box blue">
+              <h6>Location</h6>
+              <p>{camp.location}</p>
+            </div>
+
+            <div className="info-box purple">
+              <h6>Schedule</h6>
+              <p>{camp.date}</p>
+              <small>{camp.time}</small>
+            </div>
+
+            <div className="info-box light-blue center">
+              <h2>{camp.collected}</h2>
+              <span>Registered Donors</span>
+            </div>
+
+            <div className="info-box light-red center">
+              <h2>{camp.collected}/{camp.total}</h2>
+              <span>Units Collected</span>
+            </div>
+          </div>
+
+          {/* FOOTER INFO */}
+          <div className="camp-footer-info">
+            <p><strong>Organizer:</strong> {camp.organizer || "Red Cross Society"}</p>
+            <p><strong>Contact:</strong> {camp.phone || "+91 2234567890"}</p>
+          </div>
+
+          {/* ACTIONS */}
+          <div className="camp-actions">
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => setEditMode(true)}
+            >
+              Edit Camp
+            </button>
+
+            <button
+              className="btn btn-danger"
+              onClick={() => {
+                onClose();
+                onRegister();
+              }}
+            >
+              Register Donors
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default CampDetailsModal;
