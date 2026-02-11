@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import BookAppointmentModal from "../components/BookAppointmentModal";
+
 
 
 const Appointments = () => {
+  const [showBookModal, setShowBookModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const userRole = "donor"; 
+  const userRole = "donor";
 
 
 
@@ -34,6 +37,7 @@ const Appointments = () => {
             color: "#fff",
             border: "none",
           }}
+          onClick={() => setShowBookModal(true)}
         >
           + Book New Appointment
         </button>
@@ -182,213 +186,213 @@ const Appointments = () => {
       </div>
 
       {/* DETAILS MODAL */}
-   {showDetails && (
-  <div
-    className="modal d-block"
-    style={{ background: "rgba(0,0,0,0.6)" }}
-  >
-    <div className="modal-dialog modal-lg modal-dialog-centered">
-      <div className="modal-content p-4">
-
-        {/* HEADER */}
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="d-flex align-items-center gap-2">
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                background: "#ef4444",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#fff",
-              }}
-            >
-              📅
-            </div>
-            <h5 className="mb-0">Appointment Details</h5>
-          </div>
-
-          <div className="d-flex align-items-center gap-2">
-            <span
-              style={{
-                background: "#fef3c7",
-                color: "#92400e",
-                border: "1px solid #facc15",
-                padding: "4px 12px",
-                borderRadius: 999,
-                fontSize: 12,
-              }}
-            >
-              Requested
-            </span>
-
-            <button className="btn-close" onClick={() => setShowDetails(false)} />
-          </div>
-        </div>
-
-        {/* DONOR INFO */}
+      {showDetails && (
         <div
-          className="p-3 mb-3"
-          style={{
-            background: "#f9fafb",
-            borderRadius: 10,
-            border: "1px solid #e5e7eb",
-          }}
+          className="modal d-block"
+          style={{ background: "rgba(0,0,0,0.6)" }}
         >
-          <h6 className="mb-3">Donor Information</h6>
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content p-4">
 
-          <div className="row">
-            <div className="col-md-6 mb-2">
-              <small className="text-muted">Name</small>
-              <div>Amit Kumar</div>
-            </div>
+              {/* HEADER */}
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <div className="d-flex align-items-center gap-2">
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 8,
+                      background: "#ef4444",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#fff",
+                    }}
+                  >
+                    📅
+                  </div>
+                  <h5 className="mb-0">Appointment Details</h5>
+                </div>
 
-            <div className="col-md-6 mb-2">
-              <small className="text-muted">Blood Group</small>
-              <div style={{ color: "#ef4444", fontWeight: 600 }}>B+</div>
-            </div>
+                <div className="d-flex align-items-center gap-2">
+                  <span
+                    style={{
+                      background: "#fef3c7",
+                      color: "#92400e",
+                      border: "1px solid #facc15",
+                      padding: "4px 12px",
+                      borderRadius: 999,
+                      fontSize: 12,
+                    }}
+                  >
+                    Requested
+                  </span>
 
-            <div className="col-md-6">
-              <small className="text-muted">Phone</small>
-              <div>+91 9876543212</div>
-            </div>
+                  <button className="btn-close" onClick={() => setShowDetails(false)} />
+                </div>
+              </div>
 
-            <div className="col-md-6">
-              <small className="text-muted">Type</small>
-              <div>Donation</div>
+              {/* DONOR INFO */}
+              <div
+                className="p-3 mb-3"
+                style={{
+                  background: "#f9fafb",
+                  borderRadius: 10,
+                  border: "1px solid #e5e7eb",
+                }}
+              >
+                <h6 className="mb-3">Donor Information</h6>
+
+                <div className="row">
+                  <div className="col-md-6 mb-2">
+                    <small className="text-muted">Name</small>
+                    <div>Amit Kumar</div>
+                  </div>
+
+                  <div className="col-md-6 mb-2">
+                    <small className="text-muted">Blood Group</small>
+                    <div style={{ color: "#ef4444", fontWeight: 600 }}>B+</div>
+                  </div>
+
+                  <div className="col-md-6">
+                    <small className="text-muted">Phone</small>
+                    <div>+91 9876543212</div>
+                  </div>
+
+                  <div className="col-md-6">
+                    <small className="text-muted">Type</small>
+                    <div>Donation</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* APPOINTMENT DETAILS */}
+              <div
+                className="p-3 mb-4"
+                style={{
+                  background: "#ffffff",
+                  borderRadius: 10,
+                  border: "1px solid #e5e7eb",
+                }}
+              >
+                <h6 className="mb-3">Appointment Details</h6>
+
+                <div className="row">
+                  <div className="col-md-6 mb-2">
+                    <small className="text-muted">Date</small>
+                    <div>Sunday, January 18, 2026</div>
+                  </div>
+
+                  <div className="col-md-6 mb-2">
+                    <small className="text-muted">Time Slot</small>
+                    <div>09:00 – 09:30</div>
+                  </div>
+
+                  <div className="col-md-12">
+                    <small className="text-muted">Location</small>
+                    <div>Blood Bank</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ACTION BUTTONS */}
+              <div className="row g-2 mb-3">
+                <div className="col-md-6">
+                  <button
+                    className="btn w-100"
+                    style={{ background: "#16a34a", color: "#fff" }}
+                  >
+                    ✔ Approve Appointment
+                  </button>
+                </div>
+
+                <div className="col-md-6">
+                  <button
+                    className="btn w-100"
+                    style={{
+                      border: "1px solid #ef4444",
+                      color: "#ef4444",
+                      background: "#fff",
+                    }}
+                  >
+                    ✖ Reject
+                  </button>
+                </div>
+
+                <div className="col-md-12">
+                  <button
+                    className="btn w-100"
+                    style={{
+                      border: "1px solid #ef4444",
+                      color: "#ef4444",
+                      background: "#fff",
+                    }}
+                  >
+                    🔁 Reschedule Appointment
+                  </button>
+                </div>
+              </div>
+
+              {/* REASON */}
+              <div className="mb-3">
+                <label className="form-label">
+                  Cancellation / Rejection Reason
+                </label>
+                <textarea
+                  className="form-control"
+                  rows={3}
+                  placeholder="Enter reason for cancellation or rejection..."
+                />
+              </div>
+
+              {/* CANCEL */}
+              <button
+                className="btn w-100"
+                style={{ background: "#ef4444", color: "#fff" }}
+              >
+                🚫 Cancel Appointment
+              </button>
+
+              {userRole === "donor" && (
+                <div
+                  className="mt-4 p-4 text-center"
+                  style={{
+                    background: "#ecfdf5",
+                    border: "1px solid #86efac",
+                    borderRadius: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: "50%",
+                      background: "#22c55e",
+                      color: "#fff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 28,
+                      margin: "0 auto 12px",
+                    }}
+                  >
+                    ✓
+                  </div>
+
+                  <h6 style={{ color: "#166534" }}>
+                    Appointment Completed
+                  </h6>
+
+                  <small className="text-muted">
+                    Donation record has been created
+                  </small>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
-
-        {/* APPOINTMENT DETAILS */}
-        <div
-          className="p-3 mb-4"
-          style={{
-            background: "#ffffff",
-            borderRadius: 10,
-            border: "1px solid #e5e7eb",
-          }}
-        >
-          <h6 className="mb-3">Appointment Details</h6>
-
-          <div className="row">
-            <div className="col-md-6 mb-2">
-              <small className="text-muted">Date</small>
-              <div>Sunday, January 18, 2026</div>
-            </div>
-
-            <div className="col-md-6 mb-2">
-              <small className="text-muted">Time Slot</small>
-              <div>09:00 – 09:30</div>
-            </div>
-
-            <div className="col-md-12">
-              <small className="text-muted">Location</small>
-              <div>Blood Bank</div>
-            </div>
-          </div>
-        </div>
-
-        {/* ACTION BUTTONS */}
-        <div className="row g-2 mb-3">
-          <div className="col-md-6">
-            <button
-              className="btn w-100"
-              style={{ background: "#16a34a", color: "#fff" }}
-            >
-              ✔ Approve Appointment
-            </button>
-          </div>
-
-          <div className="col-md-6">
-            <button
-              className="btn w-100"
-              style={{
-                border: "1px solid #ef4444",
-                color: "#ef4444",
-                background: "#fff",
-              }}
-            >
-              ✖ Reject
-            </button>
-          </div>
-
-          <div className="col-md-12">
-            <button
-              className="btn w-100"
-              style={{
-                border: "1px solid #ef4444",
-                color: "#ef4444",
-                background: "#fff",
-              }}
-            >
-              🔁 Reschedule Appointment
-            </button>
-          </div>
-        </div>
-
-        {/* REASON */}
-        <div className="mb-3">
-          <label className="form-label">
-            Cancellation / Rejection Reason
-          </label>
-          <textarea
-            className="form-control"
-            rows={3}
-            placeholder="Enter reason for cancellation or rejection..."
-          />
-        </div>
-
-        {/* CANCEL */}
-        <button
-          className="btn w-100"
-          style={{ background: "#ef4444", color: "#fff" }}
-        >
-          🚫 Cancel Appointment
-        </button>
-        
-        {userRole === "donor" && (
-  <div
-    className="mt-4 p-4 text-center"
-    style={{
-      background: "#ecfdf5",
-      border: "1px solid #86efac",
-      borderRadius: 12,
-    }}
-  >
-    <div
-      style={{
-        width: 56,
-        height: 56,
-        borderRadius: "50%",
-        background: "#22c55e",
-        color: "#fff",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 28,
-        margin: "0 auto 12px",
-      }}
-    >
-      ✓
-    </div>
-
-    <h6 style={{ color: "#166534" }}>
-      Appointment Completed
-    </h6>
-
-    <small className="text-muted">
-      Donation record has been created
-    </small>
-  </div>
-)}
-
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
 
       {/* HISTORY MODAL */}
@@ -399,6 +403,13 @@ const Appointments = () => {
           <p>Amit Kumar — Jan 15, 2025</p>
         </Modal>
       )}
+
+      {showBookModal && (
+        <BookAppointmentModal
+          onClose={() => setShowBookModal(false)}
+        />
+      )}
+
     </div>
   );
 };
@@ -424,8 +435,10 @@ const Modal = ({ children, onClose }) => (
           <button className="btn-close" onClick={onClose}></button>
         </div>
         {children}
+
       </div>
     </div>
+
   </div>
 );
 
