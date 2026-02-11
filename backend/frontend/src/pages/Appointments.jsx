@@ -21,7 +21,7 @@ const Appointments = () => {
       <div
         className="p-4 rounded mb-4"
         style={{
-          background: "#ffffff",
+          background: "#ef1616",
           border: "1px solid #e5e7eb",
         }}
       >
@@ -33,8 +33,8 @@ const Appointments = () => {
         <button
           className="btn btn-sm me-2"
           style={{
-            background: "#ef4444",
-            color: "#fff",
+            background: "#f9f9f9",
+            color: "#f81818",
             border: "none",
           }}
           onClick={() => setShowBookModal(true)}
@@ -55,13 +55,114 @@ const Appointments = () => {
         </button>
       </div>
 
-      {/* STATS */}
-      <div className="row mb-4">
-        <StatCard title="Today's Appointments" value="0" />
-        <StatCard title="Pending Approval" value="0" />
-        <StatCard title="Approved" value="0" />
-        <StatCard title="Emergency" value="0" />
+     {/* STATS CARDS */}
+<div className="row mb-4">
+
+  {/* Today's Appointments */}
+  <div className="col-md-3 col-sm-6 mb-3">
+    <div
+  className="card shadow-sm rounded-4 p-4 h-100"
+  style={{ border: "1px solid #bfdbfe" }}
+>
+
+      <div className="d-flex justify-content-between align-items-start">
+        <div>
+          <h3 className="fw-bold mb-0">0</h3>
+          <small className="text-muted">Today's Appointments</small>
+        </div>
+        <div style={{
+          width: 45,
+          height: 45,
+          borderRadius: "50%",
+          background: "#dbeafe",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 20
+        }}>
+          📅
+        </div>
       </div>
+    </div>
+  </div>
+
+  {/* Pending */}
+  <div className="col-md-3 col-sm-6 mb-3">
+    <div className="card shadow-sm rounded-4 p-4 h-100"
+      style={{ border: "1px solid #fde68a" }}>
+      <div className="d-flex justify-content-between align-items-start">
+        <div>
+          <h3 className="fw-bold mb-0">4</h3>
+          <small className="text-muted">Pending Approval</small>
+        </div>
+        <div style={{
+          width: 45,
+          height: 45,
+          borderRadius: "50%",
+          background: "#fef3c7",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 20
+        }}>
+          ⏳
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Approved */}
+  <div className="col-md-3 col-sm-6 mb-3">
+    <div className="card shadow-sm rounded-4 p-4 h-100"
+      style={{ border: "1px solid #86efac" }}>
+      <div className="d-flex justify-content-between align-items-start">
+        <div>
+          <h3 className="fw-bold mb-0">2</h3>
+          <small className="text-muted">Approved</small>
+        </div>
+        <div style={{
+          width: 45,
+          height: 45,
+          borderRadius: "50%",
+          background: "#dcfce7",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 20
+        }}>
+          ✅
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Emergency */}
+  <div className="col-md-3 col-sm-6 mb-3">
+    <div className="card shadow-sm rounded-4 p-4 h-100"
+      style={{ border: "1px solid #fecaca" }}>
+      <div className="d-flex justify-content-between align-items-start">
+        <div>
+          <h3 className="fw-bold mb-0">1</h3>
+          <small className="text-muted">Emergency</small>
+        </div>
+        <div style={{
+          width: 45,
+          height: 45,
+          borderRadius: "50%",
+          background: "#fee2e2",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 20
+        }}>
+          🚨
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 
       {/* FILTERS */}
       <div className="card p-3 mb-4" style={{ border: "1px solid #e5e7eb" }}>
@@ -396,13 +497,124 @@ const Appointments = () => {
 
 
       {/* HISTORY MODAL */}
-      {showHistory && (
-        <Modal onClose={() => setShowHistory(false)}>
-          <h5>Appointment History</h5>
-          <hr />
-          <p>Amit Kumar — Jan 15, 2025</p>
-        </Modal>
-      )}
+  {showHistory && (
+  <div
+    className="modal d-block"
+    style={{ background: "rgba(0,0,0,0.6)" }}
+  >
+    <div className="modal-dialog modal-lg modal-dialog-centered">
+      <div
+        className="modal-content p-4"
+        style={{ borderRadius: 16 }}
+      >
+
+        {/* HEADER */}
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h5 className="mb-0">🕒 Appointment History</h5>
+          <button
+            className="btn-close"
+            onClick={() => setShowHistory(false)}
+          ></button>
+        </div>
+
+        {/* HISTORY ITEM 1 */}
+        <div
+          className="d-flex justify-content-between align-items-center p-3 mb-3"
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: 12,
+            background: "#f9fafb",
+          }}
+        >
+          <div className="d-flex align-items-center gap-3">
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 10,
+                background: "#e5e7eb",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              📄
+            </div>
+
+            <div>
+              <div className="fw-semibold">Rahul Sharma</div>
+              <small className="text-muted">
+                Feb 2, 2026 · 09:30 - 10:00
+              </small>
+            </div>
+          </div>
+
+          <span
+            style={{
+              background: "#dcfce7",
+              color: "#166534",
+              border: "1px solid #86efac",
+              padding: "4px 12px",
+              borderRadius: 999,
+              fontSize: 12,
+            }}
+          >
+            Completed
+          </span>
+        </div>
+
+        {/* HISTORY ITEM 2 */}
+        <div
+          className="d-flex justify-content-between align-items-center p-3"
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: 12,
+            background: "#f9fafb",
+          }}
+        >
+          <div className="d-flex align-items-center gap-3">
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 10,
+                background: "#e5e7eb",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              📄
+            </div>
+
+            <div>
+              <div className="fw-semibold">Amit Kumar</div>
+              <small className="text-muted">
+                Jan 15, 2025 · 09:00 - 09:30
+              </small>
+            </div>
+          </div>
+
+          <span
+            style={{
+              background: "#dcfce7",
+              color: "#166534",
+              border: "1px solid #86efac",
+              padding: "4px 12px",
+              borderRadius: 999,
+              fontSize: 12,
+            }}
+          >
+            Completed
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
+
+
 
       {showBookModal && (
         <BookAppointmentModal
