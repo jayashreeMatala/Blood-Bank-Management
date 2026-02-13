@@ -6,12 +6,11 @@ import {
   FiHeart,
   FiCalendar,
   FiTruck,
-  FiFileText,
   FiActivity,
   FiAward,
   FiGitBranch,
-  FiBarChart
-
+  FiBarChart,
+  FiFileText
 } from "react-icons/fi";
 import "./Sidebar.css";
 
@@ -19,27 +18,58 @@ function Sidebar() {
   return (
     <div className="sidebar">
 
+      {/* Logo */}
       <div className="sidebar-logo">
         <div className="logo-icon">🩸</div>
         <span>Blood Bank</span>
       </div>
 
+      {/* Menu */}
       <nav className="sidebar-menu">
+
+        {/* 1️⃣ Dashboard */}
         <MenuItem to="/" icon={<FiHome />} text="Dashboard" />
+
+        {/* 2️⃣ Donors */}
         <MenuItem to="/donors" icon={<FiUsers />} text="Donors" />
-        <MenuItem to="/inventory" icon={<FiBox />} text="Inventory" />
-        <MenuItem to="/donations" icon={<FiHeart />} text="Donations" />
+
+        {/* 3️⃣ Appointment */}
         <MenuItem to="/appointments" icon={<FiCalendar />} text="Appointments" />
-        <MenuItem to="/requests" icon={<FiHeart />} text="Requests" />
-        <MenuItem to="/camps" icon={<FiCalendar />} text="Camps" />
-        <MenuItem to="/transfers" icon={<FiTruck />} text="Transfers" />
-        <MenuItem to="/analytics" icon={<FiBarChart />} text="Analytics" />
+
+        {/* 4️⃣ Screening */}
         <MenuItem to="/screening" icon={<FiActivity />} text="Screening" />
-        <MenuItem to="/achievements" icon={<FiAward />} text="Achievements" />
-        <MenuItem to="/compatibility"icon={<FiGitBranch />}text="Blood Compatibility"/>
+
+        {/* 5️⃣ Donations */}
+        <MenuItem to="/donations" icon={<FiHeart />} text="Donations" />
+
+        {/* 6️⃣ Inventory */}
+        <MenuItem to="/inventory" icon={<FiBox />} text="Inventory" />
+
+        {/* 7️⃣ Transfers */}
+        <MenuItem to="/transfers" icon={<FiTruck />} text="Transfers" />
+
+        {/* 8️⃣ Requests */}
+        <MenuItem to="/requests" icon={<FiFileText />} text="Requests" />
+
+        {/* 9️⃣ Blood Compatibility */}
+        <MenuItem
+          to="/compatibility"
+          icon={<FiGitBranch />}
+          text="Blood Compatibility"
+        />
+
+        {/* 🔟 Camps */}
+        <MenuItem to="/camps" icon={<FiCalendar />} text="Camps" />
+
+        {/* 1️⃣1️⃣ Analytics */}
+        <MenuItem to="/analytics" icon={<FiBarChart />} text="Analytics" />
+
+        {/* 1️⃣2️⃣ Achievement */}
+        <MenuItem to="/achievements" icon={<FiAward />} text="Achievement" />
 
       </nav>
 
+      {/* Logout Button */}
       <button className="logout-btn">Logout</button>
     </div>
   );

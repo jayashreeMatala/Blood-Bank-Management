@@ -19,37 +19,70 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
     notes: donor?.notes || ""
   });
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = () => {
-    if (!form.name || !form.phone || !form.blood) {
-      alert("Please fill required fields");
-      return;
+    let newErrors = {};
+
+    // Required fields
+    if (!form.name.trim()) {
+      newErrors.name = "Full Name is required";
     }
 
+    if (!form.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^[0-9]{10}$/.test(form.phone)) {
+      newErrors.phone = "Phone must be 10 digits";
+    }
+
+    if (!form.blood) {
+      newErrors.blood = "Blood group is required";
+    }
+
+    // Email validation (optional)
+    if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    // Age validation
+    if (form.dob) {
+      const birthDate = new Date(form.dob);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      if (age < 18) {
+        newErrors.dob = "Donor must be at least 18 years old";
+      }
+    }
+
+    // Weight validation
+    if (form.weight && Number(form.weight) < 50) {
+      newErrors.weight = "Minimum weight must be 50 kg";
+    }
+
+    // Pincode validation
+    if (form.pincode && !/^[0-9]{6}$/.test(form.pincode)) {
+      newErrors.pincode = "Pincode must be 6 digits";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) return;
+
     if (isEdit) {
-      // ✏️ EDIT DONOR
       updateDonor(form);
     } else {
-      // ➕ REGISTER DONOR
       addDonor({
-        name: form.name,
-        phone: form.phone,
-        email: form.email,
-        blood: form.blood,
-        city: form.city,
-        dob: form.dob,
-        gender: form.gender,
-        weight: form.weight,
-        state: form.state,
-        pincode: form.pincode,
-        notes: form.notes
+        ...form,
+        status: "Active",
+        donations: 0
       });
     }
 
-    onClose(); // modal band
+    onClose();
   };
 
   return (
@@ -57,7 +90,6 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
       <div className="modal-dialog modal-lg modal-dialog-centered">
         <div className="modal-content">
 
-          {/* HEADER */}
           <div className="modal-header">
             <h5 className="modal-title">
               {isEdit ? "Edit Donor" : "Register New Donor"}
@@ -65,11 +97,11 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
             <button className="btn-close" onClick={onClose}></button>
           </div>
 
-          {/* BODY */}
           <div className="modal-body">
 
             <h6 className="mb-3">Personal Information</h6>
             <div className="row g-3 mb-3">
+
               <div className="col-md-6">
                 <label className="form-label">Full Name *</label>
                 <input
@@ -78,6 +110,7 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
                   value={form.name}
                   onChange={handleChange}
                 />
+                {errors.name && <small className="text-danger">{errors.name}</small>}
               </div>
 
               <div className="col-md-6">
@@ -88,6 +121,7 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
                   value={form.email}
                   onChange={handleChange}
                 />
+                {errors.email && <small className="text-danger">{errors.email}</small>}
               </div>
 
               <div className="col-md-6">
@@ -98,6 +132,7 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
                   value={form.phone}
                   onChange={handleChange}
                 />
+                {errors.phone && <small className="text-danger">{errors.phone}</small>}
               </div>
 
               <div className="col-md-3">
@@ -109,6 +144,7 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
                   value={form.dob}
                   onChange={handleChange}
                 />
+                {errors.dob && <small className="text-danger">{errors.dob}</small>}
               </div>
 
               <div className="col-md-3">
@@ -129,6 +165,7 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
 
             <h6 className="mb-3">Blood Information</h6>
             <div className="row g-3 mb-3">
+
               <div className="col-md-6">
                 <label className="form-label">Blood Group *</label>
                 <select
@@ -143,6 +180,7 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
                   <option>O+</option><option>O-</option>
                   <option>AB+</option><option>AB-</option>
                 </select>
+                {errors.blood && <small className="text-danger">{errors.blood}</small>}
               </div>
 
               <div className="col-md-6">
@@ -153,11 +191,13 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
                   value={form.weight}
                   onChange={handleChange}
                 />
+                {errors.weight && <small className="text-danger">{errors.weight}</small>}
               </div>
             </div>
 
             <h6 className="mb-3">Address</h6>
             <div className="row g-3 mb-3">
+
               <div className="col-md-4">
                 <label className="form-label">City</label>
                 <input
@@ -186,6 +226,7 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
                   value={form.pincode}
                   onChange={handleChange}
                 />
+                {errors.pincode && <small className="text-danger">{errors.pincode}</small>}
               </div>
             </div>
 
@@ -200,7 +241,6 @@ function RegisterDonorModal({ donor, isEdit = false, onClose }) {
             />
           </div>
 
-          {/* FOOTER */}
           <div className="modal-footer">
             <button className="btn btn-outline-secondary" onClick={onClose}>
               Cancel
