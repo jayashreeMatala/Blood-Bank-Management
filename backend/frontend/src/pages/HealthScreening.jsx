@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { useDonors } from "../context/DonorContext";
 import "./HealthScreening.css";
 
+
 function HealthScreening() {
+  const [showDetails, setShowDetails] = useState(false);
+const [selectedRecord, setSelectedRecord] = useState(null);
+
   const { donors } = useDonors();
 
   const [step, setStep] = useState("select");
@@ -105,6 +109,43 @@ function HealthScreening() {
       : step === "result"
       ? 100
       : 0;
+
+      const [screeningRecords] = useState([
+  {
+    id: "SCR-1771136029719",
+    name: "Rahul Sharma",
+    blood: "B-",
+    date: "Feb 15, 2026",
+    hemoglobin: "12.5 g/dL",
+    weight: "50 kg",
+    pulse: "60 bpm",
+    status: "Eligible",
+    approved: true
+  },
+  {
+    id: "SCR-1771135973738",
+    name: "Rahul Sharma",
+    blood: "B-",
+    date: "Feb 15, 2026",
+    hemoglobin: "12.5 g/dL",
+    weight: "50 kg",
+    pulse: "60 bpm",
+    status: "Temporary Deferral",
+    approved: false
+  },
+  {
+    id: "SCR-1771136034647",
+    name: "Rahul Sharma",
+    blood: "B-",
+    date: "Feb 15, 2026",
+    hemoglobin: "12.5 g/dL",
+    weight: "50 kg",
+    pulse: "60 bpm",
+    status: "Eligible",
+    approved: true
+  }
+]);
+
 
   return (
     <div className="screening-page">
@@ -393,6 +434,289 @@ function HealthScreening() {
 
   </div>
 )}
+{/* ===== SCREENING RECORDS SECTION ===== */}
+{step === "select" && (
+  <div className="mt-5">
+
+    {/* Title */}
+    <h3 className="fw-bold">Screening Records</h3>
+    <p className="text-muted mb-4">
+      Complete history of donor health screenings
+    </p>
+
+   <div className="row g-4 mb-4">
+
+  {/* Today Screenings */}
+  <div className="col-md-4">
+    <div className="stat-card stat-neutral d-flex justify-content-between align-items-center p-4">
+      <div>
+        <h3 className="fw-bold mb-1">0</h3>
+        <small className="text-muted">Today's Screenings</small>
+      </div>
+      <div className="stat-icon bg-primary-subtle text-primary">
+        <i className="bi bi-calendar"></i>
+      </div>
+    </div>
+  </div>
+
+  {/* Eligible */}
+  <div className="col-md-4">
+    <div className="stat-card stat-success d-flex justify-content-between align-items-center p-4">
+      <div>
+        <h3 className="fw-bold mb-1">8</h3>
+        <small>Eligible Donors</small>
+      </div>
+      <div className="stat-icon bg-success-subtle text-success">
+        <i className="bi bi-check-circle"></i>
+      </div>
+    </div>
+  </div>
+
+  {/* Deferred */}
+  <div className="col-md-4">
+    <div className="stat-card stat-danger d-flex justify-content-between align-items-center p-4">
+      <div>
+        <h3 className="fw-bold mb-1">9</h3>
+        <small>Deferred</small>
+      </div>
+      <div className="stat-icon bg-danger-subtle text-danger">
+        <i className="bi bi-x-circle"></i>
+      </div>
+    </div>
+  </div>
+
+</div>
+{showDetails && selectedRecord && (
+  <div className="details-overlay">
+    <div className="details-modal">
+
+      {/* Header */}
+      <div className="details-header">
+        <div className="d-flex align-items-center gap-2">
+          <div className="details-icon">🩺</div>
+          <h5 className="mb-0">Screening Details</h5>
+        </div>
+
+        <div className="d-flex align-items-center gap-3">
+          <span className="eligible-badge">Eligible</span>
+          <button
+            className="close-btn"
+            onClick={() => setShowDetails(false)}
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      {/* Donor Info */}
+      <div className="details-box blue-box">
+        <h6>Donor Information</h6>
+        <div className="row mt-3">
+          <div className="col-md-6">
+            <strong>Name</strong>
+            <div>{selectedRecord.name}</div>
+          </div>
+          <div className="col-md-6">
+            <strong>Blood Group</strong>
+            <div className="text-danger">{selectedRecord.blood}</div>
+          </div>
+          <div className="col-md-6 mt-3">
+            <strong>Screening ID</strong>
+            <div>{selectedRecord.id}</div>
+          </div>
+          <div className="col-md-6 mt-3">
+            <strong>Date</strong>
+            <div>{selectedRecord.date}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Vital Signs */}
+      <div className="details-box">
+        <h6>Vital Signs</h6>
+        <div className="vital-grid">
+          <div className="vital-card-small">
+            <span>Hemoglobin</span>
+            <h5>12.5</h5>
+            <small>g/dL</small>
+          </div>
+          <div className="vital-card-small">
+            <span>Blood Pressure</span>
+            <h5>120</h5>
+          </div>
+          <div className="vital-card-small">
+            <span>Pulse Rate</span>
+            <h5>60</h5>
+            <small>bpm</small>
+          </div>
+          <div className="vital-card-small">
+            <span>Weight</span>
+            <h5>50</h5>
+            <small>kg</small>
+          </div>
+          <div className="vital-card-small">
+            <span>Temperature</span>
+            <h5>98</h5>
+            <small>°F</small>
+          </div>
+        </div>
+      </div>
+
+      {/* Health Questionnaire */}
+<div className="details-box purple-box">
+  <h6>Health Questionnaire</h6>
+
+  <div className="row mt-3">
+
+    <div className="col-md-6 mb-3">
+      <div className="question-card-small">
+        <span>Recent Illness</span>
+        <div className="text-danger fw-semibold">✕ No</div>
+      </div>
+    </div>
+
+    <div className="col-md-6 mb-3">
+      <div className="question-card-small">
+        <span>Taking Medications</span>
+        <div className="text-danger fw-semibold">✕ No</div>
+      </div>
+    </div>
+
+    <div className="col-md-6 mb-3">
+      <div className="question-card-small">
+        <span>Allergies</span>
+        <div className="text-danger fw-semibold">✕ No</div>
+      </div>
+    </div>
+
+    <div className="col-md-6 mb-3">
+      <div className="question-card-small">
+        <span>Chronic Disease</span>
+        <div className="text-danger fw-semibold">✕ No</div>
+      </div>
+    </div>
+
+    <div className="col-md-6 mb-3">
+      <div className="question-card-small">
+        <span>Recent Tattoo</span>
+        <div className="text-danger fw-semibold">✕ No</div>
+      </div>
+    </div>
+
+    <div className="col-md-6 mb-3">
+      <div className="question-card-small">
+        <span>Pregnancy</span>
+        <div className="text-danger fw-semibold">✕ No</div>
+      </div>
+    </div>
+
+    <div className="col-md-6 mb-3">
+      <div className="question-card-small">
+        <span>Recent Travel</span>
+        <div className="text-danger fw-semibold">✕ No</div>
+      </div>
+    </div>
+
+    <div className="col-md-6 mb-3">
+      <div className="question-card-small">
+        <span>HIV/Hepatitis</span>
+        <div className="text-danger fw-semibold">✕ No</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+      {/* Next Eligible */}
+      <div className="details-box blue-box">
+        <strong>Next Eligible Date</strong>
+        <div>April 12, 2026</div>
+      </div>
+
+    </div>
+  </div>
+)}
+
+
+    {/* Filter */}
+    <div className="card shadow-sm p-3 mb-4">
+      <div className="row g-3">
+        <div className="col-md-6">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by name or screening ID..."
+          />
+        </div>
+        <div className="col-md-6">
+          <select className="form-select">
+            <option>All Status</option>
+            <option>Eligible</option>
+            <option>Temporary Deferral</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    {/* Records List */}
+    {screeningRecords.map((record, index) => (
+      <div key={index} className="record-card shadow-sm p-4 mb-4 rounded">
+
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 className="mb-1">{record.name}</h5>
+            <small className="text-muted">{record.id}</small>
+          </div>
+
+          <span
+  onClick={() => {
+    if (record.status === "Eligible") {
+      setSelectedRecord(record);
+      setShowDetails(true);
+    }
+  }}
+  style={{ cursor: record.status === "Eligible" ? "pointer" : "default" }}
+  className={`badge px-3 py-2 ${
+    record.status === "Eligible"
+      ? "bg-success-subtle text-success"
+      : "bg-warning-subtle text-warning"
+  }`}
+>
+  {record.status}
+</span>
+
+        </div>
+
+        <div className="row text-muted small">
+          <div className="col-md-2">
+            <strong>Blood:</strong> {record.blood}
+          </div>
+          <div className="col-md-2">
+            <strong>Date:</strong> {record.date}
+          </div>
+          <div className="col-md-3">
+            <strong>Hemoglobin:</strong> {record.hemoglobin}
+          </div>
+          <div className="col-md-2">
+            <strong>Weight:</strong> {record.weight}
+          </div>
+          <div className="col-md-3">
+            <strong>Pulse:</strong> {record.pulse}
+          </div>
+        </div>
+
+        {record.approved && (
+          <div className="approved-box mt-3">
+            APPROVED BY STAFF
+          </div>
+        )}
+      </div>
+    ))}
+
+  </div>
+)}
+
 
 
     </div>
