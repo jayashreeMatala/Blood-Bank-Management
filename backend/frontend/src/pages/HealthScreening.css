@@ -544,3 +544,9 @@
   justify-content: space-between;
   align-items: center;
 }
+.red-box {
+  background: #fdecec;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 15px;
+}

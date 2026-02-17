@@ -34,6 +34,11 @@ const [selectedRecord, setSelectedRecord] = useState(null);
     { text: "Do you have any tattoos or piercings in the last 6 months?", critical: true }
   ];
 
+  const generateScreeningId = () => {
+  return "SCR-" + Date.now();
+};
+
+
   const handleAnswer = (value) => {
     const updated = [...answers, value];
     setAnswers(updated);
@@ -44,47 +49,80 @@ const [selectedRecord, setSelectedRecord] = useState(null);
       setStep("vitals");
     }
   };
+const evaluate = () => {
 
-  const evaluate = () => {
-    if (!vitals.hemoglobin || !vitals.pulse || !vitals.weight || !vitals.temp) {
-      alert("Please fill all vital signs.");
-      return;
-    }
+  if (answers.length !== questions.length) {
+    alert("Please answer all questions.");
+    return;
+  }
 
-    let problems = [];
-    let eligible = true;
+  if (!vitals.hemoglobin || !vitals.pulse || !vitals.weight || !vitals.temp) {
+    alert("Please fill all vital signs.");
+    return;
+  }
 
-    questions.forEach((q, i) => {
-      if (q.critical && answers[i] === "Yes") {
-        eligible = false;
-        problems.push(q.text);
-      }
-    });
+  const hemoglobin = parseFloat(vitals.hemoglobin);
+  const weight = parseFloat(vitals.weight);
+  const pulse = parseFloat(vitals.pulse);
+  const temp = parseFloat(vitals.temp);
 
-    if (vitals.hemoglobin < 12.5) {
+  let problems = [];
+  let eligible = true;
+
+  questions.forEach((q, i) => {
+    if (q.critical && answers[i] === "Yes") {
       eligible = false;
-      problems.push("Hemoglobin level too low (minimum 12.5 g/dL)");
+      problems.push(q.text);
     }
+  });
 
-    if (vitals.weight < 50) {
-      eligible = false;
-      problems.push("Minimum weight must be 50 kg");
-    }
+  if (hemoglobin < 12.5) {
+    eligible = false;
+    problems.push("Hemoglobin level too low (minimum 12.5 g/dL)");
+  }
 
-    if (vitals.pulse < 60 || vitals.pulse > 100) {
-      eligible = false;
-      problems.push("Pulse rate outside normal range (60-100 bpm)");
-    }
+  if (weight < 50) {
+    eligible = false;
+    problems.push("Minimum weight must be 50 kg");
+  }
 
-    if (vitals.temp < 96 || vitals.temp > 100) {
-      eligible = false;
-      problems.push("Temperature abnormal");
-    }
+  if (pulse < 60 || pulse > 100) {
+    eligible = false;
+    problems.push("Pulse rate outside normal range (60-100 bpm)");
+  }
 
-    setIssues(problems);
-    setResult(eligible);
-    setStep("result");
+  if (temp < 96 || temp > 100) {
+    eligible = false;
+    problems.push("Temperature abnormal");
+  }
+
+  const nextDate = eligible
+    ? new Date(new Date().setDate(new Date().getDate() + 56))
+    : new Date(new Date().setDate(new Date().getDate() + 90));
+
+  const newRecord = {
+    id: generateScreeningId(),
+    name: selectedDonor.name,
+    blood: selectedDonor.blood,
+    date: new Date().toLocaleDateString(),
+    hemoglobin: hemoglobin + " g/dL",
+    weight: weight + " kg",
+    pulse: pulse + " bpm",
+    bp: vitals.bp || "N/A",
+    temp: temp + " °F",
+    status: eligible ? "Eligible" : "Temporary Deferral",
+    approved: eligible,
+    nextEligible: nextDate.toLocaleDateString(),
+    deferralReason: problems.length > 0 ? problems[0] : null,
+    answers: [...answers] // copy safe
   };
+
+  setScreeningRecords(prev => [newRecord, ...prev]);
+  setIssues(problems);
+  setResult(eligible);
+  setStep("result");
+};
+
 
   const reset = () => {
     setStep("select");
@@ -110,7 +148,7 @@ const [selectedRecord, setSelectedRecord] = useState(null);
       ? 100
       : 0;
 
-      const [screeningRecords] = useState([
+      const [screeningRecords,setScreeningRecords] = useState([
   {
     id: "SCR-1771136029719",
     name: "Rahul Sharma",
@@ -123,16 +161,31 @@ const [selectedRecord, setSelectedRecord] = useState(null);
     approved: true
   },
   {
-    id: "SCR-1771135973738",
-    name: "Rahul Sharma",
-    blood: "B-",
-    date: "Feb 15, 2026",
-    hemoglobin: "12.5 g/dL",
-    weight: "50 kg",
-    pulse: "60 bpm",
-    status: "Temporary Deferral",
-    approved: false
-  },
+  id: "SCR-1771135973738",
+  name: "Rahul Sharma",
+  blood: "B-",
+  date: "Feb 15, 2026",
+  hemoglobin: "12.5 g/dL",
+  weight: "50 kg",
+  pulse: "60 bpm",
+  status: "Temporary Deferral",
+  approved: false,
+  nextEligible: "March 17, 2026",
+  deferralReason:"Currently on medication ( consult doctor )",
+
+  // 🔥 FIXED ANSWERS ARRAY
+  answers: [
+    "No",   // Feeling healthy
+    "Yes",  // Good meal
+    "Yes",  // Sleep
+    "Yes",  // ✅ Taking Medications
+    "No",
+    "No",
+    "No",
+    "No"
+  ]
+},
+
   {
     id: "SCR-1771136034647",
     name: "Rahul Sharma",
@@ -143,6 +196,7 @@ const [selectedRecord, setSelectedRecord] = useState(null);
     pulse: "60 bpm",
     status: "Eligible",
     approved: true
+    
   }
 ]);
 
@@ -450,7 +504,7 @@ const [selectedRecord, setSelectedRecord] = useState(null);
   <div className="col-md-4">
     <div className="stat-card stat-neutral d-flex justify-content-between align-items-center p-4">
       <div>
-        <h3 className="fw-bold mb-1">0</h3>
+        <h3 className="fw-bold mb-1">{screeningRecords.length}</h3>
         <small className="text-muted">Today's Screenings</small>
       </div>
       <div className="stat-icon bg-primary-subtle text-primary">
@@ -463,7 +517,10 @@ const [selectedRecord, setSelectedRecord] = useState(null);
   <div className="col-md-4">
     <div className="stat-card stat-success d-flex justify-content-between align-items-center p-4">
       <div>
-        <h3 className="fw-bold mb-1">8</h3>
+        <h3 className="fw-bold mb-1">
+  {screeningRecords.filter(r => r.status === "Eligible").length}
+</h3>
+
         <small>Eligible Donors</small>
       </div>
       <div className="stat-icon bg-success-subtle text-success">
@@ -476,7 +533,10 @@ const [selectedRecord, setSelectedRecord] = useState(null);
   <div className="col-md-4">
     <div className="stat-card stat-danger d-flex justify-content-between align-items-center p-4">
       <div>
-        <h3 className="fw-bold mb-1">9</h3>
+        <h3 className="fw-bold mb-1">
+  {screeningRecords.filter(r => r.status === "Temporary Deferral").length}
+</h3>
+
         <small>Deferred</small>
       </div>
       <div className="stat-icon bg-danger-subtle text-danger">
@@ -498,7 +558,16 @@ const [selectedRecord, setSelectedRecord] = useState(null);
         </div>
 
         <div className="d-flex align-items-center gap-3">
-          <span className="eligible-badge">Eligible</span>
+          <span
+  className={`badge px-3 py-2 ${
+    selectedRecord.status === "Eligible"
+      ? "bg-success-subtle text-success"
+      : "bg-warning-subtle text-warning"
+  }`}
+>
+  {selectedRecord.status}
+</span>
+
           <button
             className="close-btn"
             onClick={() => setShowDetails(false)}
@@ -556,7 +625,10 @@ const [selectedRecord, setSelectedRecord] = useState(null);
           </div>
           <div className="vital-card-small">
             <span>Temperature</span>
-            <h5>98</h5>
+            <h5>
+  {selectedRecord.temp ? selectedRecord.temp : "N/A"}
+</h5>
+
             <small>°F</small>
           </div>
         </div>
@@ -577,10 +649,20 @@ const [selectedRecord, setSelectedRecord] = useState(null);
 
     <div className="col-md-6 mb-3">
       <div className="question-card-small">
-        <span>Taking Medications</span>
-        <div className="text-danger fw-semibold">✕ No</div>
-      </div>
-    </div>
+  <span>Taking Medications</span>
+  <div
+    className={
+      selectedRecord.answers && selectedRecord.answers[3] === "Yes"
+
+        ? "text-success fw-semibold"
+        : "text-danger fw-semibold"
+    }
+  >
+    {selectedRecord.answers?.[3] === "Yes" ? "✓ Yes" : "✕ No"}
+  </div>
+</div>
+</div>
+
 
     <div className="col-md-6 mb-3">
       <div className="question-card-small">
@@ -628,15 +710,24 @@ const [selectedRecord, setSelectedRecord] = useState(null);
 </div>
 
 
-      {/* Next Eligible */}
-      <div className="details-box blue-box">
-        <strong>Next Eligible Date</strong>
-        <div>April 12, 2026</div>
-      </div>
+     {/* Next Eligible */}
+<div className="details-box blue-box">
+  <strong>Next Eligible Date</strong>
+  <div>{selectedRecord.nextEligible}</div>
+</div>
+{selectedRecord.status === "Temporary Deferral" && (
+  <div className="details-box red-box mt-3">
+    <strong>⚠ Deferral Reasons</strong>
+    <div className="mt-2">
+      {selectedRecord.deferralReason}
+    </div>
+  </div>
+)}
 
     </div>
   </div>
 )}
+
 
 
     {/* Filter */}
@@ -671,11 +762,10 @@ const [selectedRecord, setSelectedRecord] = useState(null);
 
           <span
   onClick={() => {
-    if (record.status === "Eligible") {
-      setSelectedRecord(record);
-      setShowDetails(true);
-    }
-  }}
+  setSelectedRecord(record);
+  setShowDetails(true);
+}}
+
   style={{ cursor: record.status === "Eligible" ? "pointer" : "default" }}
   className={`badge px-3 py-2 ${
     record.status === "Eligible"

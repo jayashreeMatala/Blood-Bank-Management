@@ -1,300 +1,105 @@
-import { useState } from "react";
-import { useInventory } from "../context/InventoryContext";
-import { useDonors } from "../context/DonorContext";
+import React, { useState } from "react";
+import "./Donations.css";
 
 function Donations() {
-  const { addBlood } = useInventory();
-  const { donors, addDonationToDonor } = useDonors();
 
-  const [filter, setFilter] = useState("All");
-  const [search, setSearch] = useState("");
-  const [showForm, setShowForm] = useState(false);
+  const donors = [
+    { id: 1, name: "Rahul Sharma", blood: "B+", screened: false, donations: 0, lastDonation: "First Time" },
+    { id: 2, name: "Rahul Sharma", blood: "B-", screened: true, donations: 2, lastDonation: "Feb 18, 2026" },
+    { id: 3, name: "Yash", blood: "AB+", screened: true, donations: 1, lastDonation: "Feb 14, 2026" }
+  ];
 
-  const [donations, setDonations] = useState([
-    {
-      id: 1,
-      donorId: 1,
-      name: "John Smith",
-      blood: "O+",
-      units: 1,
-      date: "Jan 15, 2025",
-      camp: "-",
-      status: "Approved"
-    },
-    {
-      id: 2,
-      donorId: 2,
-      name: "Sarah Johnson",
-      blood: "A+",
-      units: 1,
-      date: "Dec 20, 2024",
-      camp: "-",
-      status: "Approved"
-    },
-    {
-      id: 3,
-      donorId: 3,
-      name: "Michael Brown",
-      blood: "B-",
-      units: 1,
-      date: "Feb 1, 2025",
-      camp: "-",
-      status: "Pending"
-    }
-  ]);
+  const [selectedDonor, setSelectedDonor] = useState(null);
 
-  const [form, setForm] = useState({
-    donorId: "",
-    units: 1,
-    camp: "-"
-  });
-
-  /* =======================
-     APPROVE DONATION
-  ======================= */
-  const approveDonation = (id, donorId, blood, units) => {
-    addBlood(blood, Number(units));
-
-    const today = new Date().toISOString().split("T")[0];
-    addDonationToDonor(donorId, today, units, "Approved");
-
-    setDonations((prev) =>
-      prev.map((d) =>
-        d.id === id ? { ...d, status: "Approved" } : d
-      )
-    );
+  const handleSelect = (e) => {
+    const donor = donors.find(d => d.id === Number(e.target.value));
+    setSelectedDonor(donor);
   };
-
-  const rejectDonation = (id) => {
-    setDonations((prev) =>
-      prev.map((d) =>
-        d.id === id ? { ...d, status: "Rejected" } : d
-      )
-    );
-  };
-
-  const saveDonation = () => {
-    if (!form.donorId || form.units <= 0) {
-      alert("Invalid donation details");
-      return;
-    }
-
-    const donor = donors.find(
-      (d) => d.id === Number(form.donorId)
-    );
-
-    if (!donor) {
-      alert("Donor not found");
-      return;
-    }
-
-    const today = new Date().toDateString();
-
-    setDonations([
-      {
-        id: Date.now(),
-        donorId: donor.id,
-        name: donor.name,
-        blood: donor.blood,
-        units: Number(form.units),
-        date: today,
-        camp: form.camp,
-        status: "Pending"
-      },
-      ...donations
-    ]);
-
-    setForm({ donorId: "", units: 1, camp: "-" });
-    setShowForm(false);
-  };
-
-  const filteredDonations = donations.filter((d) => {
-    const matchesFilter =
-      filter === "All" || d.status === filter;
-
-    const matchesSearch =
-      d.name.toLowerCase().includes(search.toLowerCase()) ||
-      d.blood.toLowerCase().includes(search.toLowerCase());
-
-    return matchesFilter && matchesSearch;
-  });
-
-  const countByStatus = (status) =>
-    donations.filter((d) => d.status === status).length;
 
   return (
-    <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h2 className="fw-bold mb-0">Donations</h2>
-          <p className="text-muted">Manage blood donations and approvals</p>
-        </div>
+    <div className="donation-page">
 
-        <button
-          className="btn btn-danger"
-          onClick={() => setShowForm(!showForm)}
-        >
-          + Record Donation
-        </button>
+      {/* Header */}
+      <div className="donation-header">
+        <div className="icon-box">🩸</div>
+        <div>
+          <h2>Blood Donation</h2>
+          <p>Complete the donation process</p>
+        </div>
       </div>
 
-      {showForm && (
-        <div className="card p-3 mb-4">
-          <div className="row g-2">
-            <div className="col-md-4">
-              <select
-                className="form-select"
-                value={form.donorId}
-                onChange={(e) =>
-                  setForm({ ...form, donorId: e.target.value })
-                }
-              >
-                <option value="">Select Donor</option>
-                {donors.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name} ({d.blood})
-                  </option>
-                ))}
-              </select>
+      {/* Select Donor */}
+      <div className="card-box">
+        <label className="section-label">Select Donor</label>
+
+        <select className="form-select" onChange={handleSelect}>
+          <option value="">Choose donor...</option>
+          {donors.map(d => (
+            <option key={d.id} value={d.id}>
+              {d.name} - {d.blood}
+            </option>
+          ))}
+        </select>
+
+        {selectedDonor && (
+          <div className="donor-info-box">
+
+            <div className="row">
+              <div className="col">
+                <small>Donor Name</small>
+                <h6>{selectedDonor.name}</h6>
+              </div>
+
+              <div className="col text-end">
+                <small>Blood Group</small>
+                <h6 className="blood">{selectedDonor.blood}</h6>
+              </div>
             </div>
 
-            <div className="col-md-2">
-              <input
-                type="number"
-                className="form-control"
-                value={form.units}
-                onChange={(e) =>
-                  setForm({ ...form, units: e.target.value })
-                }
-              />
+            <div className="row mt-3">
+              <div className="col">
+                <small>Last Donation</small>
+                <div>{selectedDonor.lastDonation}</div>
+              </div>
+
+              <div className="col text-end">
+                <small>Total Donations</small>
+                <div>{selectedDonor.donations}</div>
+              </div>
             </div>
 
-            <div className="col-md-3">
-              <input
-                className="form-control"
-                placeholder="Camp"
-                value={form.camp}
-                onChange={(e) =>
-                  setForm({ ...form, camp: e.target.value })
-                }
-              />
+            <div className="mt-3">
+              <small>Screening Status</small>
+              <div>
+                {selectedDonor.screened ? (
+                  <span className="badge-success">
+                    Eligible - Screened on Feb 16, 2026
+                  </span>
+                ) : (
+                  <span className="badge-danger">
+                    Not Screened - Complete health screening first
+                  </span>
+                )}
+              </div>
             </div>
           </div>
+        )}
+      </div>
 
-          <button
-            className="btn btn-success mt-3"
-            onClick={saveDonation}
-          >
-            Save Donation
+      {/* Not Eligible Box */}
+      {selectedDonor && !selectedDonor.screened && (
+        <div className="not-eligible-box">
+          <div className="warning-icon">!</div>
+          <h4>Donor Not Eligible</h4>
+          <p>
+            This donor must complete health screening and be marked as eligible before donation.
+          </p>
+          <button className="btn-danger">
+            Go to Health Screening
           </button>
         </div>
       )}
 
-      <div className="d-flex align-items-center gap-2 mb-3">
-        {["All", "Pending", "Approved", "Rejected"].map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`btn btn-sm ${
-              filter === f
-                ? "btn-light border"
-                : "btn-outline-secondary"
-            }`}
-          >
-            {f} (
-            {f === "All"
-              ? donations.length
-              : countByStatus(f)}
-            )
-          </button>
-        ))}
-
-        <input
-          className="form-control ms-auto"
-          style={{ maxWidth: "260px" }}
-          placeholder="Search donations..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
-      <div className="card shadow-sm">
-        <table className="table align-middle mb-0">
-          <thead className="table-light">
-            <tr>
-              <th>Donor</th>
-              <th>Date</th>
-              <th>Camp</th>
-              <th>Status</th>
-              <th className="text-center">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredDonations.map((d) => (
-              <tr key={d.id}>
-                <td>
-                  <span className="badge bg-danger me-2">
-                    {d.blood}
-                  </span>
-                  <strong>{d.name}</strong>
-                  <div className="small text-muted">
-                    {d.units} unit(s)
-                  </div>
-                </td>
-                <td>{d.date}</td>
-                <td>{d.camp}</td>
-                <td>
-                  <span
-                    className={`badge ${
-                      d.status === "Approved"
-                        ? "bg-success"
-                        : d.status === "Pending"
-                        ? "bg-warning text-dark"
-                        : "bg-secondary"
-                    }`}
-                  >
-                    {d.status}
-                  </span>
-                </td>
-                <td className="text-center">
-                  {d.status === "Pending" && (
-                    <>
-                      <button
-                        className="btn btn-sm text-success me-2"
-                        onClick={() =>
-                          approveDonation(
-                            d.id,
-                            d.donorId,
-                            d.blood,
-                            d.units
-                          )
-                        }
-                      >
-                        ✓
-                      </button>
-                      <button
-                        className="btn btn-sm text-danger"
-                        onClick={() => rejectDonation(d.id)}
-                      >
-                        ✕
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-
-            {filteredDonations.length === 0 && (
-              <tr>
-                <td colSpan="5" className="text-center text-muted py-4">
-                  No donations found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }
