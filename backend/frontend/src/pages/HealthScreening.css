@@ -372,11 +372,7 @@
 }
 
 /* Filter Card */
-.card {
-  border-radius: 18px !important;
-  border: 1px solid #e5e7eb !important;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.04) !important;
-}
+
 
 /* Record Card */
 .record-card {
@@ -392,11 +388,7 @@
 }
 
 /* Status Badge Fix */
-.badge {
-  border-radius: 10px !important;
-  font-weight: 500 !important;
-  font-size: 13px !important;
-}
+
 
 /* Eligible badge */
 .bg-success-subtle {

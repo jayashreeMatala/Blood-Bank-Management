@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useTransfers } from "../context/TransferContext";
 import NewTransferModal from "../components/NewTransferModal";
+import "./Transfers.css";
+
 
 
 
@@ -28,7 +30,8 @@ function Transfers() {
     .reduce((s, t) => s + t.units, 0);
 
   return (
-    <div className="container-fluid p-4">
+    <div className="container-fluid p-4 transfers-page">
+
 
       {/* HEADER */}
       <div className="d-flex justify-content-between mb-4">

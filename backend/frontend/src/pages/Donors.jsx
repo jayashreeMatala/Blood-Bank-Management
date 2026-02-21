@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDonors } from "../context/DonorContext";
 import DonorProfileModal from "../components/DonorProfileModal";
 import RegisterDonorModal from "../components/RegisterDonorModal";
+import "./Donors.css";
 
 
 function Donors() {
@@ -30,65 +31,69 @@ function Donors() {
 
 
   return (
-    <div className="container-fluid p-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+    <div className="donors-page">
+
+      <div className="donor-header">
         <div>
-          <h3 className="fw-bold">Donor Management</h3>
-          <p className="text-muted">View and manage registered blood donors</p>
-          {/* ===== FILTER BAR ===== */}
-          <div className="card shadow-sm mb-4">
-            <div className="card-body d-flex gap-3 align-items-center">
+          <h3>Donor Management</h3>
+          <p>View and manage registered blood donors</p>
 
-              {/* SEARCH */}
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search by name, phone, or email..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-
-              {/* BLOOD GROUP */}
-              <select
-                className="form-select"
-                style={{ maxWidth: "180px" }}
-                value={bloodGroup}
-                onChange={(e) => setBloodGroup(e.target.value)}
-              >
-                <option value="All">All Blood Groups</option>
-                <option>A+</option>
-                <option>A-</option>
-                <option>B+</option>
-                <option>B-</option>
-                <option>O+</option>
-                <option>O-</option>
-                <option>AB+</option>
-                <option>AB-</option>
-              </select>
-
-              {/* STATUS */}
-              <select
-                className="form-select"
-                style={{ maxWidth: "160px" }}
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="All">All Status</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-
-            </div>
-          </div>
 
         </div>
 
-        <button className="btn btn-danger" onClick={() => setShowRegister(true)}>
+        <button className="register-btn" onClick={() => setShowRegister(true)}>
           + Register Donor
         </button>
       </div>
 
-      <div className="card shadow-sm">
+      <div className="filter-wrapper">
+  <div className="filter-bar">
+
+    <div className="filter-search">
+      <span className="search-icon">🔍</span>
+      <input
+        type="text"
+        placeholder="Search by name, phone, or email..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+    </div>
+
+    <div className="filter-select">
+      <span className="select-icon"></span>
+      <select
+        value={bloodGroup}
+        onChange={(e) => setBloodGroup(e.target.value)}
+      >
+        <option value="All">All Groups</option>
+        <option>A+</option>
+        <option>A-</option>
+        <option>B+</option>
+        <option>B-</option>
+        <option>O+</option>
+        <option>O-</option>
+        <option>AB+</option>
+        <option>AB-</option>
+      </select>
+    </div>
+
+    <div className="filter-select">
+      <span className="select-icon">⚲</span>
+      <select
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
+      >
+        <option value="All">All Status</option>
+        <option>Active</option>
+        <option>Inactive</option>
+      </select>
+    </div>
+
+  </div>
+</div>
+
+
+      <div className="container p-4">
         <table className="table align-middle mb-0">
           <thead className="table-light">
             <tr>

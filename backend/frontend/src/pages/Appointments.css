@@ -1,0 +1,193 @@
+/* ===== PAGE WRAPPER ===== */
+.container-fluid {
+  background: #f4f7fb !important;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* ===== HEADER ===== */
+.container-fluid > div:first-child {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 15px 40px rgba(220,38,38,0.25);
+}
+
+.container-fluid h4 {
+  font-weight: 700;
+  color: #ffffff !important;
+}
+
+.container-fluid p.text-muted {
+  color: #ffe4e6 !important;
+}
+
+/* ===== HEADER BUTTONS ===== */
+.container-fluid .btn-sm {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: 0.3s ease;
+}
+
+.container-fluid .btn-sm:hover {
+  transform: translateY(-2px);
+}
+
+/* ===== STATS CARDS ===== */
+.card.shadow-sm.rounded-4 {
+  border-radius: 20px !important;
+  transition: 0.3s ease;
+  background: #ffffff;
+}
+
+.card.shadow-sm.rounded-4:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+/* ===== FILTER CARD ===== */
+.card.p-3.mb-4 {
+  border-radius: 18px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+}
+
+.card.p-3.mb-4 h6 {
+  font-weight: 600;
+  color: #111827;
+}
+
+.form-control,
+.form-select {
+  border-radius: 12px !important;
+  height: 44px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+}
+
+/* ===== APPOINTMENT CARD ===== */
+.card.shadow-sm {
+  border-radius: 18px !important;
+  transition: 0.3s ease;
+}
+
+.card.shadow-sm:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+}
+
+.card-body h6 {
+  font-weight: 600;
+}
+
+.card-body p {
+  font-size: 14px;
+}
+
+/* ===== BADGES ===== */
+span[style*="Completed"] {
+  border-radius: 999px !important;
+  font-weight: 500;
+}
+
+/* ===== VIEW DETAILS BUTTON ===== */
+.card .btn {
+  border-radius: 10px;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.card .btn:hover {
+  background: #f3f4f6 !important;
+}
+
+/* ===== MODAL OVERLAY ===== */
+.modal {
+  backdrop-filter: blur(6px);
+}
+
+/* ===== MODAL CONTENT ===== */
+.modal-content {
+  border-radius: 22px !important;
+  border: none !important;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.35);
+}
+
+/* ===== MODAL HEADER ICON ===== */
+.modal-content h5 {
+  font-weight: 600;
+}
+
+/* ===== DONOR INFO BOX ===== */
+.modal-content .p-3 {
+  border-radius: 16px !important;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.modal-content .btn {
+  border-radius: 12px;
+  font-weight: 500;
+  transition: 0.3s ease;
+}
+
+.modal-content .btn:hover {
+  transform: translateY(-2px);
+}
+
+/* APPROVE BUTTON */
+.modal-content .btn[style*="#16a34a"] {
+  box-shadow: 0 10px 25px rgba(34,197,94,0.3);
+}
+
+/* REJECT BUTTON */
+.modal-content .btn[style*="#ef4444"] {
+  transition: 0.3s ease;
+}
+
+/* TEXTAREA */
+textarea.form-control {
+  border-radius: 12px !important;
+  padding: 10px;
+}
+
+/* COMPLETED GREEN BOX */
+.modal-content .mt-4 {
+  border-radius: 18px !important;
+  box-shadow: 0 10px 25px rgba(34,197,94,0.15);
+}
+
+/* ===== HISTORY MODAL ITEMS ===== */
+.modal-content .d-flex.p-3 {
+  transition: 0.3s ease;
+}
+
+.modal-content .d-flex.p-3:hover {
+  transform: translateX(5px);
+  background: #ffffff !important;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 20px !important;
+  }
+
+  .card h3 {
+    font-size: 20px;
+  }
+
+  .modal-dialog {
+    margin: 10px;
+  }
+}

@@ -3,6 +3,7 @@ import { createContext, useContext, useState } from "react";
 const DonorContext = createContext();
 
 export const DonorProvider = ({ children }) => {
+
   const [donors, setDonors] = useState([
     {
       id: 1,
@@ -12,7 +13,8 @@ export const DonorProvider = ({ children }) => {
       blood: "A+",
       status: "Active",
       donations: 5,
-      city: "Mumbai"
+      city: "Mumbai",
+      screeningStatus: "Eligible"   // ✅ Eligible Donor
     },
     {
       id: 2,
@@ -22,60 +24,68 @@ export const DonorProvider = ({ children }) => {
       blood: "O+",
       status: "Active",
       donations: 3,
-      city: "Delhi"
+      city: "Delhi",
+      screeningStatus: "Not Screened"   // ❌ Not Eligible
     }
   ]);
-const updateDonor = (updated) => {
-  setDonors(prev =>
-    prev.map(d =>
-      d.id === updated.id
-        ? {
-            ...d,               // 🔥 purana data rakho
-            ...updated,          // ✏️ naya edited data
-            status: d.status ?? "Active",
-            donations: d.donations ?? 0
-          }
-        : d
-    )
-  );
-};
 
-const addDonationToDonor = (donorId, units = 1) => {
-  setDonors(prev =>
-    prev.map(d =>
-      d.id === donorId
-        ? {
-            ...d,
-            donations: (d.donations || 0) + units
-          }
-        : d
-    )
-  );
-};
+  // ✅ UPDATE DONOR
+  const updateDonor = (updated) => {
+    setDonors(prev =>
+      prev.map(d =>
+        d.id === updated.id
+          ? {
+              ...d,
+              ...updated,
+              status: d.status ?? "Active",
+              donations: d.donations ?? 0,
+              screeningStatus: updated.screeningStatus ?? d.screeningStatus
+            }
+          : d
+      )
+    );
+  };
 
-
-
+  // ✅ ADD DONATION COUNT
+  const addDonationToDonor = (donorId, units = 1) => {
+    setDonors(prev =>
+      prev.map(d =>
+        d.id === donorId
+          ? {
+              ...d,
+              donations: (d.donations || 0) + units
+            }
+          : d
+      )
+    );
+  };
 
   // ✅ ADD NEW DONOR
- const addDonor = (donor) => {
-  setDonors(prev => [
-    {
-      id: Date.now(),
-      status: "Active",
-      donations: 0,
-      ...donor
-    },
-    ...prev
-  ]);
-};
-
+  const addDonor = (donor) => {
+    setDonors(prev => [
+      {
+        id: Date.now(),
+        status: "Active",
+        donations: 0,
+        screeningStatus: "Not Screened",   // 🔥 Default
+        ...donor
+      },
+      ...prev
+    ]);
+  };
 
   return (
-    <DonorContext.Provider value={{ donors, addDonor, updateDonor, addDonationToDonor}}>
+    <DonorContext.Provider
+      value={{
+        donors,
+        addDonor,
+        updateDonor,
+        addDonationToDonor
+      }}
+    >
       {children}
     </DonorContext.Provider>
   );
 };
-
 
 export const useDonors = () => useContext(DonorContext);

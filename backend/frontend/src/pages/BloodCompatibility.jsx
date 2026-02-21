@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./BloodCompatibility.css";
+
+
 
 const BLOOD_DATA = {
   "A+": {

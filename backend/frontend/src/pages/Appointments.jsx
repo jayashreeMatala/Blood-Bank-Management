@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import BookAppointmentModal from "../components/BookAppointmentModal";
+import "./Appointments.css";
+
 
 
 

@@ -82,7 +82,7 @@
   position: relative;
 }
 
-.camp-top .badge {
+.camp-top  {
   position: absolute;
   top: 10px;
   font-size: 11px;
