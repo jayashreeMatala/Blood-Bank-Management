@@ -1,55 +1,54 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("admin");
-
+export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (email && password) {
-      login(email, role);   // 👈 ROLE SAVE
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const success = login(email, password);
+
+    if (success) {
       navigate("/");
+    } else {
+      setError("Invalid credentials");
     }
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "400px" }}>
-      <h3 className="mb-4">🔐 Login</h3>
+    <div className="container vh-100 d-flex justify-content-center align-items-center">
+      <div className="card p-4 shadow" style={{ width: 350 }}>
+        <h4 className="mb-3 text-center">Login</h4>
 
-      <input
-        className="form-control mb-3"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+        {error && <div className="alert alert-danger">{error}</div>}
 
-      <input
-        type="password"
-        className="form-control mb-3"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            className="form-control mb-3"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-      <select
-        className="form-select mb-3"
-        value={role}
-        onChange={(e) => setRole(e.target.value)}
-      >
-        <option value="admin">Admin</option>
-        <option value="staff">Staff</option>
-      </select>
+          <input
+            type="password"
+            className="form-control mb-3"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-      <button className="btn btn-danger w-100" onClick={handleLogin}>
-        Login
-      </button>
+          <button className="btn btn-danger w-100">Login</button>
+        </form>
+      </div>
     </div>
   );
 }
-
-export default Login;

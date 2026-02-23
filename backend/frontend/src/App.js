@@ -1,22 +1,22 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext.jsx";
+import { InventoryProvider } from "./context/InventoryContext.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Sidebar from "./components/Sidebar.jsx";
 
-import ProtectedRoute from "./components/ProtectedRoute";
-import Sidebar from "./components/Sidebar";
-
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Donors from "./pages/Donors";
-import Inventory from "./pages/Inventory";
-import Donations from "./pages/Donations";
-import Requests from "./pages/Requests";
-import Camps from "./pages/Camps";
-import Transfers from "./pages/Transfers";
-import Appointments from "./pages/Appointments";
-import Analytics from "./pages/Analytics";
-import HealthScreening from "./pages/HealthScreening";
-import Achievements from "./pages/Achievements";
-import BloodCompatibility from "./pages/BloodCompatibility";
+import Login from "./pages/Login.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Donors from "./pages/Donors.jsx";
+import Inventory from "./pages/Inventory.jsx";
+import Donations from "./pages/Donations.jsx";
+import Requests from "./pages/Requests.jsx";
+import Camps from "./pages/Camps.jsx";
+import Transfers from "./pages/Transfers.jsx";
+import Appointments from "./pages/Appointments.jsx";
+import Analytics from "./pages/Analytics.jsx";
+import HealthScreening from "./pages/HealthScreening.jsx";
+import Achievements from "./pages/Achievements.jsx";
+import BloodCompatibility from "./pages/BloodCompatibility.jsx";
 
 
 
@@ -31,11 +31,11 @@ function Layout({ children }) {
 
 function App() {
   return (
-    <AuthProvider>
+   
+       <InventoryProvider>
       <BrowserRouter>
         <Routes>
-          {/* LOGIN */}
-          <Route path="/login" element={<Login />} />
+         <Route path="/login" element={<Login />} />
 
           {/* DASHBOARD */}
           <Route
@@ -173,7 +173,8 @@ function App() {
           />
         </Routes>
       </BrowserRouter>
-    </AuthProvider>
+      </InventoryProvider>
+    
   );
 }
 
