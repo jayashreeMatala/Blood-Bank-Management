@@ -1,0 +1,99 @@
+/* ===== GLOBAL ===== */
+body {
+  background-color: #f6f7fb;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+/* ===== CARDS ===== */
+.card {
+  border-radius: 14px;
+  border: none;
+}
+
+/* ===== TOP STAT CARDS ===== */
+.stat-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+}
+
+.bg-blue {
+  background: #4f46e5;
+}
+.bg-red {
+  background: #ef4444;
+}
+.bg-pink {
+  background: #ec4899;
+}
+.bg-purple {
+  background: #8b5cf6;
+}
+
+/* ===== INVENTORY CARDS ===== */
+.inventory-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  transition: 0.2s ease;
+}
+
+.inventory-card.low {
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+}
+
+.inventory-blood {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #ef4444;
+  color: white;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== PROGRESS ===== */
+.progress {
+  background-color: #f1f1f1;
+  border-radius: 10px;
+}
+
+/* ===== SECTION TITLES ===== */
+.section-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* ===== LIST ROW ===== */
+.list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* ===== BADGES ===== */
+.badge-soft-success {
+  background: #dcfce7;
+  color: #166534;
+}
+.badge-soft-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ===== ALERT ===== */
+.alert-custom {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 14px;
+}

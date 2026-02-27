@@ -1,0 +1,78 @@
+.camp-details-backdrop {
+  background: rgba(0,0,0,0.6);
+}
+
+.camp-details-card {
+  padding: 24px;
+  border-radius: 16px;
+}
+
+.camp-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.status-badge {
+  background: #e0ecff;
+  color: #2563eb;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.camp-description {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 10px;
+  margin: 16px 0;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.info-box {
+  padding: 18px;
+  border-radius: 14px;
+}
+
+.info-box h6 {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.info-box.blue {
+  background: #eff6ff;
+}
+
+.info-box.purple {
+  background: #f5f3ff;
+}
+
+.info-box.light-blue {
+  background: #eaf2ff;
+  text-align: center;
+}
+
+.info-box.light-red {
+  background: #fff1f1;
+  text-align: center;
+}
+
+.info-box.center h2 {
+  margin: 0;
+  font-size: 36px;
+}
+
+.camp-footer-info {
+  margin-top: 18px;
+}
+
+.camp-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
