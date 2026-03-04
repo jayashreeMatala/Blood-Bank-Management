@@ -1,5 +1,12 @@
-.analytics-page {
-  background: #fff;
+.analytics-page{
+  background:#f3f4f6;
+  min-height:100vh;
+  padding:20px;
+}
+.chart-box{
+  position:relative;
+  height:260px;
+  width:100%;
 }
 
 /* TOP CARDS */
@@ -14,12 +21,12 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.card-title {
+.analytics-page .card-title {
   font-size: 14px;
   color: #6b7280;
 }
 
-.stat-icon {
+.analytics-page .stat-icon {
   width: 42px;
   height: 42px;
   border-radius: 10px;
@@ -35,11 +42,16 @@
 .stat-icon.purple { background:#ede9fe; color:#7c3aed; }
 
 /* COMMON CARD */
-.analytics-card {
-  background:#fff;
-  border-radius:12px;
-  padding:16px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+.analytics-card{
+  background:#ffffff;
+  border-radius:14px;
+  padding:18px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.06);
+  height:100%;
+}
+.row{
+  margin-left:0;
+  margin-right:0;
 }
 
 /* TOP DONORS */

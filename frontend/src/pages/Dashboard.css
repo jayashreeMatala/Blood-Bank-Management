@@ -1,0 +1,257 @@
+/* Wrapper */
+.inventory-wrapper {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 20px;
+}
+.inventory-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px;
+}
+
+/* Card Base */
+.inventory-card {
+  width: 170px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  transition: 0.3s ease;
+}
+
+/* Hover */
+.inventory-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Icon Box */
+.icon-box {
+  width: 55px;
+  height: 55px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: white;
+  margin-bottom: 15px;
+}
+
+/* Blood Type */
+.blood-type {
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+/* Units */
+.units {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.unit-number {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.unit-text {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+/* Status */
+.status {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ===== COLORS ===== */
+
+/* Critical */
+.inventory-card.critical {
+  background: #fdeeee;
+  border: 1px solid #f5b5b5;
+}
+
+.inventory-card.critical .icon-box {
+  background: #fe4057;
+}
+
+.inventory-card.critical .status {
+  color: #eb2042;
+}
+
+/* Low */
+.inventory-card.low {
+  background: #fff4e5;
+  border: 1px solid #f7c58c;
+}
+
+.inventory-card.low .icon-box {
+  background: #fd7e14;
+}
+
+.inventory-card.low .status {
+  color: #fd7e14;
+}
+
+/* Sufficient */
+.inventory-card.sufficient {
+  background: #e8f5ee;
+  border: 1px solid #a8dfc3;
+}
+
+.inventory-card.sufficient .icon-box {
+  background: #198754;
+}
+
+.inventory-card.sufficient .status {
+  color: #198754;
+}
+
+/* View All */
+.view-all {
+  font-size: 14px;
+  color: #dc3545;
+  cursor: pointer;
+}
+
+.chart-header{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.chart-icon{
+width:36px;
+height:36px;
+background:#ff4d6d;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:8px;
+color:white;
+font-size:18px;
+}
+
+.alerts-wrapper{
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.alert-box{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px 14px;
+border-radius:10px;
+font-size:14px;
+cursor:pointer;
+}
+
+.alert-box.danger{
+background:#ffe5e5;
+border:1px solid #ffb3b3;
+}
+
+.alert-box.danger-light{
+background:#ffecec;
+border:1px solid #ffd6d6;
+}
+
+.alert-box.warning{
+background:#fff3cd;
+border:1px solid #ffe69c;
+}
+
+.alert-box.yellow{
+background:#fff7e6;
+border:1px solid #ffe0a3;
+}
+
+.alert-box.gray{
+background:#f1f3f5;
+border:1px solid #dee2e6;
+}
+/* EMERGENCY BANNER */
+
+.emergency-banner{
+background: linear-gradient(90deg,#e11d48,#b91c1c);
+color:white;
+border-radius:18px;
+padding:20px 25px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+}
+
+.emergency-left{
+display:flex;
+gap:15px;
+align-items:center;
+}
+
+.emergency-icon{
+background:rgba(255,255,255,0.2);
+padding:12px;
+border-radius:10px;
+font-size:22px;
+}
+
+.emergency-banner h5{
+font-weight:600;
+margin:0;
+}
+
+.emergency-banner p{
+font-size:14px;
+margin:3px 0 8px 0;
+opacity:0.9;
+}
+
+.emergency-tag{
+background:rgba(255,255,255,0.2);
+padding:4px 10px;
+border-radius:20px;
+font-size:12px;
+}
+
+.respond-btn{
+background:white;
+color:#b91c1c;
+border:none;
+padding:10px 18px;
+border-radius:8px;
+font-weight:600;
+cursor:pointer;
+}
+
+.chart-card{
+background:white;
+border-radius:16px;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+.chart-header{
+display:flex;
+align-items:center;
+gap:12px;
+margin-bottom:10px;
+}
+
+.chart-icon{
+width:38px;
+height:38px;
+border-radius:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:linear-gradient(135deg,#6366f1,#3b82f6);
+color:white;
+font-size:18px;
+}

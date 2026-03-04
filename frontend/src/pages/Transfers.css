@@ -1,36 +1,480 @@
-/* ===== TRANSFERS PAGE ONLY ===== */
-
-.transfers-page {
-  background: #f8fafc;
-  min-height: 100vh;
+.transfers-page{
+padding:25px;
+background:#f5f7fb;
+min-height:100vh;
 }
 
-.transfers-page  {
-  border-radius: 18px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+/* HEADER */
+
+.transfers-page .transfer-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+background:linear-gradient(90deg,#ef4444,#dc2626);
+color:white;
+
+padding:20px 25px;
+border-radius:20px;
+
+margin-bottom:25px;
+
+width:100%;
+box-sizing:border-box;
 }
 
-.transfers-page {
-  background: linear-gradient(135deg,#ef4444,#dc2626);
-  border: none;
-  border-radius: 10px;
+/* TEXT */
+
+.transfers-page .transfer-header h2{
+font-weight:700;
+color:white;
+margin:0;
 }
 
-.transfers-page .badge.bg-danger {
-  background: linear-gradient(135deg,#ef4444,#dc2626);
+.transfers-page .transfer-header p{
+color:#ffe4e6;
+font-size:13px;
+margin-top:5px;
 }
 
-.transfers-page .badge.bg-warning {
-  background: #fef3c7;
-  color: #92400e;
+/* BUTTON */
+
+.transfers-page .new-transfer-btn{
+background:linear-gradient(90deg,#8b5cf6,#7c3aed);
+color:white;
+border:none;
+padding:10px 18px;
+border-radius:10px;
+font-size:13px;
+font-weight:500;
+cursor:pointer;
 }
 
-.transfers-page .badge.bg-success {
-  background: #dcfce7;
-  color: #166534;
+.transfers-page .transfer-header h2{
+font-weight:700;
 }
 
-.transfers-page .badge.bg-primary {
-  background: #dbeafe;
-  color: #1e40af;
+.transfers-page .transfer-header p{
+color:#f0f1f2;
+font-size:13px;
+}
+
+.transfers-page .new-transfer-btn{
+background:#7c3aed;
+color:white;
+border:none;
+padding:8px 16px;
+border-radius:8px;
+font-size:13px;
+}
+
+/* STATS */
+
+.transfers-page .transfer-stats{
+display:grid;
+grid-template-columns:repeat(5, minmax(180px,1fr));
+gap:15px;
+margin-bottom:20px;
+}
+
+.transfers-page .stat-card{
+background:white;
+border-radius:14px;
+padding:18px;
+display:flex;
+flex-direction:column;
+gap:6px;
+position:relative;
+box-shadow:0 3px 10px rgba(0,0,0,0.05);
+border:2px solid transparent;
+}
+
+.transfers-page .stat-card h3{
+font-size:26px;
+font-weight:700;
+margin:0;
+}
+
+.transfers-page .stat-card p{
+font-size:13px;
+color:#6b7280;
+margin:0;
+}
+
+/* ICON */
+
+.transfers-page .stat-card .icon{
+position:absolute;
+top:15px;
+right:15px;
+font-size:20px;
+background:#f3f4f6;
+padding:8px;
+border-radius:10px;
+}
+
+/* COLORS */
+
+.stat-card.purple{
+border-color:#8b5cf6;
+}
+
+.stat-card.blue{
+border-color:#3b82f6;
+}
+
+.stat-card.violet{
+border-color:#a855f7;
+}
+
+.stat-card.green{
+border-color:#22c55e;
+}
+
+.stat-card.orange{
+border-color:#fb923c;
+}
+
+.transfers-page .stat-card small{
+color:#6b7280;
+}
+
+.transfers-page .stat-card h3{
+margin-top:5px;
+}
+
+/* LIVE STOCK */
+
+.transfers-page .live-stock-card{
+background:white;
+border-radius:14px;
+padding:16px;
+margin-bottom:20px;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+.transfers-page .stock-grid{
+display:grid;
+grid-template-columns:repeat(8,1fr);
+gap:12px;
+margin-top:10px;
+}
+
+.transfers-page .stock-item{
+border-radius:10px;
+padding:10px;
+text-align:center;
+font-weight:600;
+}
+
+.transfers-page .stock-item.empty{
+border:2px solid #ef4444;
+}
+
+.transfers-page .stock-item.low{
+border:2px solid #f59e0b;
+}
+
+.transfers-page .stock-item.ok{
+border:2px solid #22c55e;
+}
+
+.transfers-page .blood{
+font-size:16px;
+}
+
+.transfers-page .units{
+font-size:18px;
+}
+
+.transfers-page .status{
+font-size:11px;
+margin-top:3px;
+}
+
+/* FILTER */
+
+.transfers-page .transfer-filters{
+display:flex;
+gap:10px;
+margin-bottom:15px;
+}
+
+.transfers-page .transfer-filters input,
+.transfers-page .transfer-filters select{
+padding:7px 10px;
+border-radius:6px;
+border:1px solid #e5e7eb;
+}
+
+/* TABLE */
+
+.transfers-page .transfer-table{
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+.transfers-page table{
+width:100%;
+border-collapse:collapse;
+}
+
+.transfers-page th{
+text-align:left;
+font-size:12px;
+padding:12px;
+color:#6b7280;
+}
+
+.transfers-page td{
+padding:12px;
+font-size:13px;
+border-top:1px solid #f1f1f1;
+}
+
+/* BADGES */
+
+.transfers-page .blood-pill{
+background:#fee2e2;
+color:#ef4444;
+padding:4px 8px;
+border-radius:8px;
+font-size:12px;
+}
+
+.transfers-page .type.out{
+background:#fef3c7;
+padding:4px 8px;
+border-radius:6px;
+font-size:12px;
+}
+
+.transfers-page .type.in{
+background:#dcfce7;
+padding:4px 8px;
+border-radius:6px;
+font-size:12px;
+}
+
+.transfers-page .status.received{
+background:#dcfce7;
+color:#16a34a;
+padding:4px 8px;
+border-radius:6px;
+font-size:12px;
+}
+
+.transfers-page .status.transit{
+background:#dbeafe;
+color:#2563eb;
+padding:4px 8px;
+border-radius:6px;
+font-size:12px;
+}
+
+/* ACTION */
+
+.transfers-page .receive-btn{
+background:#16a34a;
+color:white;
+border:none;
+padding:4px 10px;
+border-radius:6px;
+font-size:12px;
+}
+
+/* NEW BLOOD STOCK UI */
+
+.stock-card2{
+background:white;
+border-radius:14px;
+overflow:hidden;
+border:2px solid #f87171;
+text-align:center;
+font-weight:600;
+}
+
+/* HEADER COLOR */
+
+.stock-head{
+padding:12px;
+font-size:18px;
+color:white;
+font-weight:700;
+}
+
+/* BODY */
+
+.stock-body{
+padding:12px;
+}
+
+.stock-units{
+font-size:22px;
+font-weight:700;
+color:#dc2626;
+}
+
+.stock-label{
+font-size:12px;
+color:#6b7280;
+}
+
+.stock-status{
+margin-top:5px;
+font-size:12px;
+font-weight:700;
+}
+
+/* STATUS COLORS */
+
+.stock-status.empty{
+color:#ef4444;
+}
+
+.stock-status.low{
+color:#f59e0b;
+}
+
+.stock-status.ok{
+color:#22c55e;
+}
+
+/* BLOOD GROUP COLORS */
+
+.stock-card2.Aplus .stock-head{
+background:linear-gradient(180deg,#f87171,#ef4444);
+}
+
+.stock-card2.Aminus .stock-head{
+background:linear-gradient(180deg,#ef4444,#b91c1c);
+}
+
+.stock-card2.Bplus .stock-head{
+background:linear-gradient(180deg,#60a5fa,#3b82f6);
+}
+
+.stock-card2.Bminus .stock-head{
+background:linear-gradient(180deg,#3b82f6,#1d4ed8);
+}
+
+.stock-card2.ABplus .stock-head{
+background:linear-gradient(180deg,#c084fc,#a855f7);
+}
+
+.stock-card2.ABminus .stock-head{
+background:linear-gradient(180deg,#a855f7,#7e22ce);
+}
+
+.stock-card2.Oplus .stock-head{
+background:linear-gradient(180deg,#4ade80,#22c55e);
+}
+
+.stock-card2.Ominus .stock-head{
+background:linear-gradient(180deg,#22c55e,#15803d);
+}
+
+/* LIVE STOCK HEADER */
+
+.live-stock-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+}
+
+/* LEFT TITLE */
+
+.live-stock-title{
+font-size:16px;
+font-weight:700;
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.cube{
+background:#f3f4f6;
+padding:6px;
+border-radius:8px;
+font-size:14px;
+}
+
+/* RIGHT BADGE */
+
+.before-transfer{
+background:#f3f4f6;
+color:#6b7280;
+font-size:12px;
+padding:6px 10px;
+border-radius:8px;
+}
+/* FILTER CARD */
+
+.filters-card{
+background:white;
+border-radius:16px;
+padding:18px;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+margin-bottom:20px;
+}
+
+.filters-title{
+font-weight:600;
+margin-bottom:10px;
+color:#374151;
+}
+
+/* TRANSFER COUNT */
+
+.transfer-count{
+font-size:12px;
+font-weight:600;
+color:#94a3b8;
+margin:15px 5px;
+}
+
+/* ROUTE */
+
+.route-pill{
+background:#f3f4f6;
+padding:5px 10px;
+border-radius:8px;
+font-size:12px;
+}
+
+.route-pill.purple{
+background:#ede9fe;
+color:#7c3aed;
+}
+
+.route-arrow{
+margin:0 8px;
+color:#a855f7;
+}
+
+/* UNITS */
+
+.units-cell{
+font-weight:700;
+font-size:16px;
+}
+
+.unit-text{
+font-size:12px;
+color:#6b7280;
+}
+
+/* TABLE HEADER */
+
+.transfers-page thead{
+background:#f8fafc;
+}
+
+/* ROW STYLE */
+
+.transfers-page tbody tr:hover{
+background:#f9fafb;
 }

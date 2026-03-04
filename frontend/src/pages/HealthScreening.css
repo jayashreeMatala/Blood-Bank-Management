@@ -323,7 +323,7 @@
 
 /* ===== EXACT SOFT CARD STYLE ===== */
 
-.stat-card {
+.screening-page .stat-card {
   background: #c1edf1;
   border-radius: 18px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
@@ -348,7 +348,7 @@
   border: 1px solid #fa063b;
 }
 
-.stat-icon {
+.screening-page .stat-icon {
   width: 50px;
   height: 50px;
   border-radius: 12px;

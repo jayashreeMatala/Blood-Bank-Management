@@ -4,6 +4,7 @@ import { InventoryProvider } from "./context/InventoryContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import { DonorProvider } from "./context/DonorContext.jsx";
+import { RequestProvider } from "./context/RequestContext";
 
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -23,10 +24,12 @@ import BloodCompatibility from "./pages/BloodCompatibility.jsx";
 
 function Layout({ children }) {
   return (
+    <RequestProvider>
     <div className="d-flex">
       <Sidebar />
       <div className="flex-grow-1 p-4">{children}</div>
     </div>
+    </RequestProvider>
   );
 }
 

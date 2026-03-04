@@ -1,27 +1,40 @@
 import React, { useState, useEffect } from "react";
 import { useDonors } from "../context/DonorContext";
 import "./Donations.css";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function Donations() {
+    const location = useLocation();
+    const navigate = useNavigate();
+  const donor = location.state?.donor;
   const { donors, updateDonor } = useDonors();
   const [donationRecords, setDonationRecords] = useState([]);
   
 
-  const [selectedDonorId, setSelectedDonorId] = useState("");
+  const [selectedDonorId, setSelectedDonorId] = useState(donor?._id || "");
   const [isEligible, setIsEligible] = useState(false);
+  const generateBagNumber = () => {
+  const today = new Date();
+  const datePart = today.toISOString().slice(0,10).replace(/-/g, "");
+  const randomPart = Math.floor(1000 + Math.random() * 9000);
+  return `BAG-${datePart}-${randomPart}`;
+};
 
   const [form, setForm] = useState({
+   
     donationId: "DON-" + Date.now(),
     donationDate: new Date().toISOString().split("T")[0],
     donationType: "Whole Blood",
     volume: "350 ml",
-    bagNumber: "",
+    units: 1,
+    bagNumber: generateBagNumber(),
     startTime: "",
     endTime: "",
     staff: "",
     site: "Hospital",
     bp: "",
     pulse: "",
+    hemoglobin: "",
     reaction: "None",
     condition: "Yes - Stable",
     refreshment: "Yes",
@@ -30,6 +43,7 @@ function Donations() {
 
  
 const [selectedRecord, setSelectedRecord] = useState(null);
+const [editId, setEditId] = useState(null);
 
 // 🔥 FETCH DONATIONS FROM BACKEND
 useEffect(() => {
@@ -45,13 +59,28 @@ const fetchDonations = async () => {
     console.error("Error fetching donations:", error);
   }
 };
+useEffect(() => {
+  if (donor?._id) {
+    setSelectedDonorId(donor._id);
+
+    if (
+      donor.screeningStatus === "Eligible" &&
+      (!donor.nextEligibleDate ||
+        new Date() >= new Date(donor.nextEligibleDate))
+    ) {
+      setIsEligible(true);
+    } else {
+      setIsEligible(false);
+    }
+  }
+}, [donor]);
   
   const selectedDonor = donors.find(
   (d) => String(d._id) === selectedDonorId
 );
 
 
-  const handleSelect = (e) => {
+ const handleSelect = (e) => {
   const id = e.target.value;
   setSelectedDonorId(id);
 
@@ -60,16 +89,18 @@ const fetchDonations = async () => {
     return;
   }
 
-  const donor = donors.find((d) => String(d.id) === id);
+  const donor = donors.find((d) => String(d._id) === id);
 
-  // ✅ REAL ELIGIBILITY CHECK
-  if (donor?.screeningStatus === "Eligible") {
-    setIsEligible(true);
-  } else {
-    setIsEligible(false);
-  }
-};
-
+if (
+  donor?.screeningStatus === "Eligible" &&
+  (!donor.nextEligibleDate ||
+    new Date() >= new Date(donor.nextEligibleDate))
+) {
+  setIsEligible(true);
+} else {
+  setIsEligible(false);
+}
+};  
 
   
   const handleChange = (e) => {
@@ -91,11 +122,17 @@ const fetchDonations = async () => {
 
     if (!form.pulse || form.pulse < 50 || form.pulse > 120)
       return "Pulse must be between 50-120 bpm";
+    if (!form.hemoglobin || form.hemoglobin < 12)
+  return "Hemoglobin must be at least 12";
 
     return null;
   };
+const handleSubmit = async () => {
+  if (!selectedDonorId) {
+    alert("Please select donor first");
+    return;
+  }
 
- const handleSubmit = async () => {
   const error = validate();
   if (error) {
     alert(error);
@@ -103,14 +140,20 @@ const fetchDonations = async () => {
   }
 
   try {
-    const response = await fetch("http://localhost:5000/api/donations", {
-      method: "POST",
+    const url = editId
+      ? `http://localhost:5000/api/donations/${editId}`
+      : "http://localhost:5000/api/donations";
+
+    const method = editId ? "PUT" : "POST";
+
+    const response = await fetch(url, {
+      method,
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         ...form,
-        donor: selectedDonor._id
+        donor: selectedDonorId
       })
     });
 
@@ -120,14 +163,80 @@ const fetchDonations = async () => {
       throw new Error(data.message);
     }
 
-    alert("Donation Completed Successfully ✅");
-    fetchDonations(); // refresh list
+    alert(editId ? "Donation Updated ✅" : "Donation Completed ✅");
+
+    fetchDonations();
+
+    setEditId(null);   // 🔥 VERY IMPORTANT
+
+    setSelectedDonorId("");
+    setIsEligible(false);
+
+    setForm({
+      donationId: "DON-" + Date.now(),
+      donationDate: new Date().toISOString().split("T")[0],
+      donationType: "Whole Blood",
+      volume: "350 ml",
+      units: 1, 
+      bagNumber: generateBagNumber(),
+      startTime: "",
+      endTime: "",
+      staff: "",
+      site: "Hospital",
+      bp: "",
+      pulse: "",
+      hemoglobin: "",
+      reaction: "None",
+      condition: "Yes - Stable",
+      refreshment: "Yes",
+      status: "Completed"
+    });
 
   } catch (error) {
     alert(error.message);
   }
 };
+const handleDelete = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this donation?"))
+    return;
 
+  try {
+    await fetch(`http://localhost:5000/api/donations/${id}`, {
+      method: "DELETE"
+    });
+
+    fetchDonations();
+  } catch (error) {
+    alert("Delete failed");
+  }
+};
+
+const handleEdit = (record) => {
+  setForm({
+    donationId: record.donationId,
+    donationDate: record.donationDate,
+    donationType: record.donationType,
+    volume: record.volume,
+    units: record.units,
+    bagNumber: record.bagNumber,
+    startTime: record.startTime,
+    endTime: record.endTime,
+    staff: record.staff,
+    site: record.site,
+    bp: record.bp,
+    pulse: record.pulse,
+    reaction: record.reaction,
+    condition: record.condition,
+    refreshment: record.refreshment,
+    status: record.status
+  });
+
+  setSelectedDonorId(record.donor?._id);
+  setEditId(record._id);
+  setIsEligible(true);
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
 
   return (
     <div className="donation-page">
@@ -186,7 +295,9 @@ const fetchDonations = async () => {
   </span>
 ) : (
   <span className="not-screened-badge">
-    ⚠ Not Screened - Complete health screening first
+    ⚠ Not Eligible - Next Eligible Date: {selectedDonor?.nextEligibleDate
+  ? new Date(selectedDonor.nextEligibleDate).toLocaleDateString("en-IN")
+  : "Please complete screening"}
   </span>
 )}
 
@@ -206,9 +317,12 @@ const fetchDonations = async () => {
       This donor must complete health screening and be marked as eligible before donation.
     </p>
 
-    <button className="go-screening-btn">
-      Go to Health Screening
-    </button>
+ <button
+  className="go-screening-btn"
+  onClick={() => navigate("/screening")}
+>
+  Go to Health Screening
+</button>
   </div>
 )}
 
@@ -246,6 +360,7 @@ const fetchDonations = async () => {
                 <select
                   name="donationType"
                   className="form-select"
+                  value={form.donationType}
                   onChange={handleChange}
                 >
                   <option>Whole Blood</option>
@@ -266,20 +381,31 @@ const fetchDonations = async () => {
                 <select
                   name="volume"
                   className="form-select"
+                  value={form.volume}
                   onChange={handleChange}
                 >
                   <option>350 ml</option>
                   <option>450 ml</option>
                 </select>
               </div>
-
+<div className="col-md-6 mt-3">
+  <label>Donation Units</label>
+  <input
+    type="number"
+    name="units"
+    className="form-control"
+    value={form.units}
+    onChange={handleChange}
+  />
+</div>
               <div className="col-md-6">
                 <label>Bag Number *</label>
                 <input
-                  name="bagNumber"
-                  className="form-control"
-                  onChange={handleChange}
-                />
+  name="bagNumber"
+  className="form-control"
+  value={form.bagNumber}
+  readOnly
+/>
               </div>
 
               <div className="col-md-6 mt-3">
@@ -288,6 +414,7 @@ const fetchDonations = async () => {
                   type="time"
                   name="startTime"
                   className="form-control"
+                  value={form.startTime}
                   onChange={handleChange}
                 />
               </div>
@@ -298,6 +425,7 @@ const fetchDonations = async () => {
                   type="time"
                   name="endTime"
                   className="form-control"
+                  value={form.endTime}
                   onChange={handleChange}
                 />
               </div>
@@ -307,6 +435,7 @@ const fetchDonations = async () => {
                 <input
                   name="staff"
                   className="form-control"
+                  value={form.staff}
                   onChange={handleChange}
                 />
               </div>
@@ -316,6 +445,9 @@ const fetchDonations = async () => {
                 <select
                   name="site"
                   className="form-select"
+                  value={form.site}
+
+
                   onChange={handleChange}
                 >
                   <option>Hospital</option>
@@ -336,6 +468,7 @@ const fetchDonations = async () => {
                   name="bp"
                   className="form-control"
                   placeholder="120/80"
+                  value={form.bp}
                   onChange={handleChange}
                 />
               </div>
@@ -346,6 +479,7 @@ const fetchDonations = async () => {
                   name="pulse"
                   type="number"
                   className="form-control"
+                  value={form.pulse}
                   onChange={handleChange}
                 />
               </div>
@@ -353,9 +487,12 @@ const fetchDonations = async () => {
               <div className="col-md-4">
                 <label>Hemoglobin</label>
                 <input
+                type="number"
+                name="hemoglobin"
                   className="form-control"
-                  value="12.5 g/dL"
-                  readOnly
+                  value={form.hemoglobin}
+                  onChange={handleChange}
+                  
                 />
               </div>
             </div>
@@ -365,6 +502,7 @@ const fetchDonations = async () => {
               <select
                 name="reaction"
                 className="form-select"
+                value={form.reaction}
                 onChange={handleChange}
               >
                 <option>None</option>
@@ -379,6 +517,7 @@ const fetchDonations = async () => {
                 <select
                   name="condition"
                   className="form-select"
+                  value={form.condition}
                   onChange={handleChange}
                 >
                   <option>Yes - Stable</option>
@@ -391,6 +530,7 @@ const fetchDonations = async () => {
                 <select
                   name="refreshment"
                   className="form-select"
+                  value={form.refreshment}
                   onChange={handleChange}
                 >
                   <option>Yes</option>
@@ -406,6 +546,7 @@ const fetchDonations = async () => {
             <select
               name="status"
               className="form-select"
+              value={form.status}
               onChange={handleChange}
             >
               <option>Completed</option>
@@ -441,35 +582,54 @@ const fetchDonations = async () => {
   </p>
 
   {/* ===== SUMMARY CARDS ===== */}
-  <div className="summary-row">
+<div className="donation-stats-row">
 
-    <div className="summary-card summary-blue">
-      <div>
-        <h3>{donationRecords.length}</h3>
-        <span>Today's Donations</span>
-      </div>
-      <div className="summary-icon">📅</div>
-    </div>
+<div className="donation-stat-card stat-red">
 
-    <div className="summary-card summary-green">
-      <div>
-        <h3>
-          {donationRecords.filter(r => r.status === "Completed").length}
-        </h3>
-        <span>Completed</span>
-      </div>
-      <div className="summary-icon">✔</div>
-    </div>
+<div className="stat-left">
+<h3>{donationRecords.length}</h3>
+<p>Today's Donations</p>
+</div>
 
-    <div className="summary-card summary-purple">
-      <div>
-        <h3>{donationRecords.length}</h3>
-        <span>Total Units</span>
-      </div>
-      <div className="summary-icon">📈</div>
-    </div>
+<div className="stat-icon red">
+📅
+</div>
 
-  </div>
+</div>
+
+
+<div className="donation-stat-card stat-green">
+
+<div className="stat-left">
+<h3>
+{donationRecords.filter(r => r.status === "Completed").length}
+</h3>
+<p>Completed</p>
+</div>
+
+<div className="stat-icon green">
+✔
+</div>
+
+</div>
+
+
+<div className="donation-stat-card stat-blue">
+
+<div className="stat-left">
+<h3>
+{donationRecords.reduce((sum, r) => sum + (r.units || 0), 0)}
+</h3>
+<p>Total Units</p>
+</div>
+
+<div className="stat-icon blue">
+📈
+</div>
+
+</div>
+
+</div>
 
   {/* ===== FILTER SECTION ===== */}
   <div className="filter-box">
@@ -510,7 +670,7 @@ const fetchDonations = async () => {
             <div>
               <strong>{record.donor?.name}</strong>
               <div className="batch-text">
-                Batch: BAG {record.id}
+                Batch: BAG {record._id.slice(-5)}
               </div>
             </div>
           </div>
@@ -536,7 +696,7 @@ const fetchDonations = async () => {
           <span>
   📅 {new Date(record.donationDate).toLocaleDateString("en-IN")}
 </span>
-          <span>🧪 Units: {record.units}</span>
+          <span>🧪 Volume: {record.volume}</span>
           <span>🩺 Hemoglobin: {record.hemoglobin}</span>
           <span>❤️ BP: {record.bp}</span>
           <span>💓 Pulse: {record.pulse} bpm</span>
@@ -546,7 +706,23 @@ const fetchDonations = async () => {
         <div className="screening-bar-new">
           ✔ SCREENING PASSED
         </div>
+<div className="record-actions">
 
+<button
+  className="btn btn-sm btn-danger"
+  onClick={() => handleDelete(record._id)}
+>
+Delete
+</button>
+
+<button
+  className="btn btn-sm btn-primary"
+  onClick={() => handleEdit(record)}
+>
+Edit
+</button>
+
+</div>
       </div>
     ))}
 
@@ -582,24 +758,26 @@ const fetchDonations = async () => {
         <div className="info-grid">
           <div>
             <label>Donor Name</label>
-            <p>{selectedRecord.donorName}</p>
+           <p>{selectedRecord.donor?.name}</p>
           </div>
 
           <div>
             <label>Blood Group</label>
             <span className="blood-group-badge">
-              {selectedRecord.blood}
+              {selectedRecord.donor?.bloodGroup}
             </span>
           </div>
 
           <div>
             <label>Donor ID</label>
-            <p>{selectedRecord.id}</p>
+            <p>{selectedRecord._id}</p>
           </div>
 
           <div>
             <label>Donation Date</label>
-            <p>{selectedRecord.date}</p>
+           <p>
+  {new Date(selectedRecord.donationDate).toLocaleDateString("en-IN")}
+</p>
           </div>
         </div>
       </div>
@@ -611,7 +789,7 @@ const fetchDonations = async () => {
         <div className="collection-grid">
           <div className="mini-box">
             <label>Batch ID</label>
-            <p>BAG-{selectedRecord.id}</p>
+           <p>BAG-{selectedRecord._id.slice(-5)}</p>
           </div>
 
           <div className="mini-box">

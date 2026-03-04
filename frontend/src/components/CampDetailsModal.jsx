@@ -51,7 +51,7 @@ const CampDetailsModal = ({ camp, onClose, onUpdate, onRegister }) => {
             <div className="info-box purple">
               <h6>Schedule</h6>
               <p>{camp.date}</p>
-              <small>{camp.time}</small>
+              <small>{camp.startTime} - {camp.endTime}</small>
             </div>
 
             <div className="info-box light-blue center">

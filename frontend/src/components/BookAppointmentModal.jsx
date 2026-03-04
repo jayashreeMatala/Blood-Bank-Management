@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 const BookAppointmentModal = ({ onClose }) => {
   const [step, setStep] = useState(1);
+  
 
   const [form, setForm] = useState({
     name: "",
@@ -15,6 +16,27 @@ const BookAppointmentModal = ({ onClose }) => {
     time: "",
     notes: ""
   });
+  const handleConfirm = async () => {
+  try {
+    const res = await fetch("http://localhost:5000/api/appointments", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to book appointment");
+    }
+
+    alert("Appointment Confirmed ✅");
+    onClose();
+
+  } catch (error) {
+    alert(error.message);
+  }
+};
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -226,12 +248,12 @@ const BookAppointmentModal = ({ onClose }) => {
                   Back
                 </button>
 
-                <button
-                  className="btn btn-success w-50"
-                  onClick={() => alert("Appointment Confirmed!")}
-                >
-                  Confirm Appointment
-                </button>
+               <button
+  className="btn btn-success w-50"
+  onClick={handleConfirm}
+>
+  Confirm Appointment
+</button>
               </div>
             </>
           )}

@@ -18,7 +18,7 @@ const RegisterCampModal = ({ camp, onClose, onRegister }) => {
   const handleConfirm = () => {
     console.log("Registered Donor:", donor);
     console.log("Camp:", camp);
-    onRegister(camp.title);
+   onRegister();
     onClose();
   };
 

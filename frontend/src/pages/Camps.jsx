@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Camps.css";
 import CreateCampModal from "../components/CreateCampModal";
 import RegisterCampModal from "../components/RegisterCampModal";
 import CampDetailsModal from "../components/CampDetailsModal";
+
 
 const Camps = () => {
   const [showModal, setShowModal] = useState(false);
@@ -10,73 +11,97 @@ const Camps = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [selectedCamp, setSelectedCamp] = useState(null); // ✅ ONLY ONCE
 
-  const stats = [
-    { title: "Upcoming Camps", value: 4, color: "blue" },
-    { title: "Active Now", value: 0, color: "green" },
-    { title: "Total Donors", value: 257, color: "purple" },
-    { title: "Units Collected", value: 142, color: "red" },
-  ];
+  const [camps, setCamps] = useState([]);
+const [search, setSearch] = useState("");
+const [statusFilter, setStatusFilter] = useState("All");
 
-  const [camps, setCamps] = useState([
-    {
-      title: "Blood Donation Camp",
-      location: "Mumbai Central",
-      date: "February 2, 2026",
-      time: "09:00 - 17:00",
-      collected: 0,
-      total: 100,
-      status: "Upcoming",
-    },
-    {
-      title: "Winter Blood Drive 2024",
-      location: "Community Center, Mumbai",
-      date: "January 20, 2026",
-      time: "09:00 - 17:00",
-      collected: 45,
-      total: 100,
-      status: "Upcoming",
-    },
-    {
-      title: "Corporate Donation Camp",
-      location: "TechPark Convention Hall",
-      date: "January 15, 2026",
-      time: "10:00 - 16:00",
-      collected: 32,
-      total: 75,
-      status: "Upcoming",
-    },
-    {
-      title: "University Blood Camp",
-      location: "Delhi University Campus",
-      date: "December 20, 2024",
-      time: "09:00 - 15:00",
-      collected: 142,
-      total: 150,
-      status: "Completed",
-    },
-  ]);
 
+
+const upcomingCamps = camps.filter(c => {
+  const today = new Date();
+  const campDate = new Date(c.date);
+  return campDate > today;
+}).length;
+
+const activeNow = camps.filter(c => {
+  const today = new Date();
+  const campDate = new Date(c.date);
+  return campDate.toDateString() === today.toDateString();
+}).length;
+
+const totalDonors = camps.reduce((sum, c) => sum + (c.collected || 0), 0);
+
+const unitsCollected = camps.reduce((sum, c) => sum + (c.collected || 0), 0);
+const getStatus = (date) => {
+  const today = new Date();
+  const campDate = new Date(date);
+
+  if (campDate.toDateString() === today.toDateString()) return "Active";
+  if (campDate > today) return "Upcoming";
+  return "Completed";
+};
+
+const filteredCamps = camps.filter((camp) => {
+  const matchesSearch =
+    camp.title?.toLowerCase().includes(search.toLowerCase()) ||
+    camp.location?.toLowerCase().includes(search.toLowerCase()) ||
+    camp.city?.toLowerCase().includes(search.toLowerCase());
+
+  const status = getStatus(camp.date);
+
+  const matchesStatus =
+    statusFilter === "All" ||
+    statusFilter === "All Status" ||
+    status === statusFilter;
+
+  return matchesSearch && matchesStatus;
+});
+
+
+useEffect(() => {
+  fetchCamps();
+}, []);
+
+const fetchCamps = async () => {
+  const res = await fetch("http://localhost:5000/api/camps");
+  const data = await res.json();
+  setCamps(data);
+};
   // CREATE CAMP
-  const handleCreateCamp = (newCamp) => {
-    setCamps((prev) => [newCamp, ...prev]);
-  };
+ const handleCreateCamp = async (newCamp) => {
+
+  const res = await fetch("http://localhost:5000/api/camps", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(newCamp)
+  });
+
+  const data = await res.json();
+
+  setCamps((prev) => [data, ...prev]);
+};
 
   // REGISTER SUCCESS
-  const handleRegisterSuccess = (campTitle) => {
-    setCamps((prev) =>
-      prev.map((camp) =>
-        camp.title === campTitle
-          ? { ...camp, collected: camp.collected + 1 }
-          : camp
-      )
-    );
-  };
+  const handleRegisterSuccess = async (campId) => {
+
+  const res = await fetch(`http://localhost:5000/api/camps/register/${campId}`, {
+    method: "PUT"
+  });
+
+  const updated = await res.json();
+
+  setCamps((prev) =>
+    prev.map((c) => (c._id === updated._id ? updated : c))
+  );
+};
 
   // UPDATE CAMP (FROM DETAILS EDIT)
   const handleUpdateCamp = (updatedCamp) => {
     setCamps((prev) =>
       prev.map((c) =>
-        c.title === updatedCamp.title ? updatedCamp : c
+        c._id === updatedCamp._id? updatedCamp : c
       )
     );
   };
@@ -109,25 +134,25 @@ const Camps = () => {
   <div className="stat-card blue">
     <div className="stat-icon">📅</div>
     <p>Upcoming Camps</p>
-    <h2>4</h2>
+<h2>{upcomingCamps}</h2>
   </div>
 
   <div className="stat-card green">
     <div className="stat-icon">⏱</div>
     <p>Active Now</p>
-    <h2>0</h2>
+   <h2>{activeNow}</h2>
   </div>
 
   <div className="stat-card purple">
     <div className="stat-icon">👥</div>
     <p>Total Donors</p>
-    <h2>259</h2>
+   <h2>{totalDonors}</h2>
   </div>
 
   <div className="stat-card red">
     <div className="stat-icon">🎯</div>
     <p>Units Collected</p>
-    <h2>142</h2>
+    <h2>{unitsCollected}</h2>
   </div>
 </div>
 
@@ -135,25 +160,42 @@ const Camps = () => {
 
       {/* FILTER */}
       <div className="filter-bar">
-        <input placeholder="Search camps by name, venue, or city..." />
-        <select>
+       <input
+  placeholder="Search camps by name, venue, or city..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+/>
+        <select
+  value={statusFilter}
+  onChange={(e) => setStatusFilter(e.target.value)}
+>
           <option>All Status</option>
           <option>Upcoming</option>
           <option>Completed</option>
         </select>
-        <button className="clear-btn">✖ Clear</button>
-      </div>
+       <button
+  className="clear-btn"
+  onClick={() => {
+    setSearch("");
+    setStatusFilter("All");
+  }}
+>
+  ✖ Clear
+</button>
+</div>
+
+
 
       {/* CAMPS */}
-      <div className="camp-grid">
-        {camps.map((c, i) => {
+<div className="camp-grid">
+        {filteredCamps.map((c, i) => {
           const percent = Math.min((c.collected / c.total) * 100, 100);
-
+          
           return (
-            <div className="camp-card" key={i}>
+            <div className="camp-card" key={c._id}>
               <div className="camp-top">
                 <span className="badge register">Register Now</span>
-                <span className="badge status">{c.status}</span>
+                <span className="badge status">{getStatus(c.date)}</span>
                 <div className="icon">📅</div>
                 <h5>{c.title}</h5>
                 <small>Saving Lives Together</small>
@@ -162,7 +204,7 @@ const Camps = () => {
               <div className="camp-body">
                 <p>📍 {c.location}</p>
                 <p>📅 {c.date}</p>
-                <p>⏰ {c.time}</p>
+                <p>⏰ {c.startTime} - {c.endTime}</p>
 
                 <div className="progress-text">
                   Collection Progress
@@ -201,6 +243,7 @@ const Camps = () => {
           );
         })}
       </div>
+     
 
       {/* CREATE CAMP MODAL */}
       {showModal && (
@@ -211,13 +254,13 @@ const Camps = () => {
       )}
 
       {/* REGISTER MODAL */}
-      {showRegister && selectedCamp && (
-        <RegisterCampModal
-          camp={selectedCamp}
-          onClose={() => setShowRegister(false)}
-          onRegister={handleRegisterSuccess}
-        />
-      )}
+     {showRegister && selectedCamp && (
+  <RegisterCampModal
+    camp={selectedCamp}
+    onClose={() => setShowRegister(false)}
+    onRegister={() => handleRegisterSuccess(selectedCamp._id)}
+  />
+)}
 
       {/* DETAILS MODAL */}
       {showDetails && selectedCamp && (

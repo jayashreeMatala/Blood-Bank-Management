@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useDonors } from "../context/DonorContext";
 import "./HealthScreening.css";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 
-const navigate = useNavigate() {
+function HealthScreening() {
+    const navigate = useNavigate(); 
   const [screeningRecords, setScreeningRecords] = useState([]);
   const [showDetails, setShowDetails] = useState(false);
 const [selectedRecord, setSelectedRecord] = useState(null);
@@ -17,6 +19,7 @@ const [selectedRecord, setSelectedRecord] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [result, setResult] = useState(null);
   const [issues, setIssues] = useState([]);
+  const location = useLocation();
 
   const [vitals, setVitals] = useState({
     hemoglobin: "",
@@ -52,6 +55,13 @@ const [selectedRecord, setSelectedRecord] = useState(null);
     }
   };
 const evaluate = async () => {
+  console.log("Selected Donor:", selectedDonor);
+console.log("Donor ID Type:", typeof selectedDonor?._id);
+  if (!selectedDonor || !selectedDonor._id) {
+  alert("Please select donor properly.");
+  return;
+}
+  console.log("Selected Donor:", selectedDonor);
 
   if (answers.length !== questions.length) {
     alert("Please answer all questions.");
@@ -80,7 +90,7 @@ const evaluate = async () => {
 
   if (hemoglobin < 12.5) {
     eligible = false;
-    problems.push("Hemoglobin level too low (minimum 12.5 g/dL)");
+    problems.push("Hemoglobin level too low");
   }
 
   if (weight < 50) {
@@ -90,7 +100,7 @@ const evaluate = async () => {
 
   if (pulse < 60 || pulse > 100) {
     eligible = false;
-    problems.push("Pulse rate outside normal range (60-100 bpm)");
+    problems.push("Pulse outside range");
   }
 
   if (temp < 96 || temp > 100) {
@@ -102,41 +112,48 @@ const evaluate = async () => {
     ? new Date(new Date().setDate(new Date().getDate() + 56))
     : new Date(new Date().setDate(new Date().getDate() + 90));
 
- try {
-  const response = await fetch("http://localhost:5000/api/screenings", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      donor: selectedDonor._id, // IMPORTANT
-      hemoglobin,
-      pulse,
-      weight,
-      bp: vitals.bp,
-      temp,
-      answers,
-      status: eligible ? "Eligible" : "Temporary Deferral",
-      nextEligible: nextDate,
-      deferralReason: problems.length > 0 ? problems[0] : null
-    })
-  });
+  try {
+    const response = await fetch("http://localhost:5000/api/screenings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        donor: selectedDonor._id,
+        hemoglobin,
+        pulse,
+        weight,
+        bp: vitals.bp,
+        temp,
+        answers,
+        status: eligible ? "Eligible" : "Temporary Deferral",
+        nextEligible: nextDate,
+        deferralReason: problems.length > 0 ? problems[0] : null
+      })
+    });
 
-  if (!response.ok) {
-    throw new Error("Screening failed");
+    if (!response.ok) {
+      throw new Error("Screening failed");
+    }
+    // 🔥 UPDATE DONOR SCREENING STATUS
+await fetch(`http://localhost:5000/api/donors/${selectedDonor._id}`, {
+  method: "PUT",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    screeningStatus: eligible ? "Eligible" : "Deferred",
+    lastScreenedDate: new Date()
+  })
+});
+
+    // ✅ Only if backend success
+    setIssues(problems);
+    setResult(eligible);
+    setStep("result");
+
+    fetchScreenings();
+
+  } catch (error) {
+    alert(error.message);
   }
-
-  fetchScreenings(); // reload list
-
-} catch (error) {
-  alert(error.message);
-}
-  
-  setIssues(problems);
-  setResult(eligible);
-  setStep("result");
 };
-
 
   const reset = () => {
     setStep("select");
@@ -165,6 +182,13 @@ const evaluate = async () => {
     useEffect(() => {
   fetchScreenings();
 }, []);
+
+useEffect(() => {
+  if (location.state?.donorFromAppointment) {
+    setSelectedDonor(location.state.donorFromAppointment);
+    setStep("questions");
+  }
+}, [location.state]);
 
 const fetchScreenings = async () => {
   try {
@@ -453,10 +477,10 @@ const fetchScreenings = async () => {
         New Screening
       </button>
 
-     <button
+  <button
   className="btn btn-primary"
   disabled={!result}
-  onClick={() => navigate("/donations")}
+  onClick={() => navigate("/donations", { state: { donor: selectedDonor } })}
 >
   Proceed to Donation
 </button>
@@ -735,7 +759,7 @@ const fetchScreenings = async () => {
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h5 className="mb-1">{record.donor?.name}</h5>
-            <small className="text-muted">{record.id}</small>
+            <small className="text-muted">{record._id}</small>
           </div>
 
           <span

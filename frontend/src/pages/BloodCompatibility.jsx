@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./BloodCompatibility.css";
 
@@ -53,11 +53,27 @@ const ALL_GROUPS = Object.keys(BLOOD_DATA);
 export default function BloodCompatibility() {
   const [group, setGroup] = useState("");
   const [mode, setMode] = useState("receive");
+  
+const [inventory, setInventory] = useState([]);
 
   const compatible = group ? BLOOD_DATA[group][mode] : [];
+  useEffect(() => {
+ fetchInventory();
+}, []);
+
+const fetchInventory = async () => {
+ const res = await fetch("http://localhost:5000/api/inventory/summary");
+ const data = await res.json();
+ setInventory(data);
+};
+const getUnits = (blood) => {
+ const item = inventory.find(i => i.blood === blood);
+ return item ? item.units : 0;
+};
   const notCompatible = group
     ? ALL_GROUPS.filter((g) => !compatible.includes(g))
     : [];
+
 
   return (
     <div className="container-fluid">
@@ -127,7 +143,9 @@ export default function BloodCompatibility() {
                       >
                         {g}
                       </div>
-                      <span className="badge bg-success">Compatible</span>
+                      <span className={`badge ${getUnits(g) === 0 ? "bg-danger" : "bg-success"}`}>
+{getUnits(g) === 0 ? "Out of Stock" : `${getUnits(g)} units`}
+</span>
                     </div>
                   </div>
                 </div>

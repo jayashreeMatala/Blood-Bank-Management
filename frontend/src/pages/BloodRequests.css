@@ -1,7 +1,15 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #f3f4f6;
+}
+
+
 .requests-wrapper {
+  min-height: 100vh;
   padding: 30px;
-  background: #f3f4f6;
-  font-family: "Segoe UI", sans-serif;
+  background-color: #f3f4f6;
 }
 
 /* HEADER */
@@ -129,7 +137,52 @@
   font-size:13px;
   color:#6b7280;
 }
+/* DOT COLORS */
 
+.dot.red { background:#ef4444; }
+.dot.orange { background:#f97316; }
+
+/* BLOOD COLORS */
+.b-blue { background:#dbeafe; color:#1d4ed8; }
+.b-green { background:#dcfce7; color:#15803d; }
+.b-red { background:#fee2e2; color:#dc2626; }
+.b-purple { background:#ede9fe; color:#7c3aed; }
+
+/* BADGE BASE */
+.requests-page .badge {
+  padding:6px 14px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:600;
+  display:inline-block;
+  border:1px solid transparent;
+}
+.badge.fulfilled {
+  background:#dcfce7;
+  color:#15803d;
+  border:1px solid #86efac;
+}
+
+.badge.pending {
+  background:#fef3c7;
+  color:#b45309;
+  border:1px solid #fde68a;
+}
+/* PRIORITY COLORS */
+.badge.normal {
+  background:#dcfce7;
+  color:#15803d;
+}
+
+.badge.urgent {
+  background:#fed7aa;
+  color:#ea580c;
+}
+
+.badge.emergency {
+  background:#fecaca;
+  color:#dc2626;
+}
 /* TABLE */
 .table-container {
   margin-top:12px;
@@ -139,7 +192,7 @@
   box-shadow:0 6px 20px rgba(0,0,0,0.04);
 }
 
-table {
+.requests-page table {
   width:100%;
   border-collapse:collapse;
 }
@@ -151,7 +204,8 @@ thead {
 th {
   padding:16px;
   font-size:12px;
-  color:#6b7280;
+  color:#475569;
+  font-weight:600;
   text-align:left;
 }
 
@@ -162,18 +216,19 @@ td {
 }
 
 .req-id {
+  font-weight:500;
   display:flex;
   align-items:center;
   gap:8px;
 }
-
 .dot {
   width:8px;
   height:8px;
   border-radius:50%;
+  margin-top:2px;
 }
 
-.green { background:#22c55e; }
+.dot.green { background:#22c55e; }
 
 .sub {
   font-size:12px;
@@ -183,12 +238,14 @@ td {
 .units {
   font-weight:700;
 }
-
 .blood {
-  padding:6px 12px;
-  border-radius:12px;
+  padding:6px 16px;
+  border-radius:999px;
   font-weight:600;
   font-size:13px;
+  display:inline-block;
+  min-width:44px;
+  text-align:center;
 }
 
 .b-green {
@@ -198,15 +255,7 @@ td {
 
 
 
-.normal {
-  background:#6bec98;
-  color:#15803d;
-}
 
-.fulfilled {
-  background:#6bec98;
-  color:#15803d;
-}
 .nr-overlay {
   position: fixed;
   inset: 0;
@@ -520,4 +569,53 @@ td {
 
 .requests-page th {
   font-size: 12px;
+}
+.approve-btn {
+  background:#dcfce7;
+  border:1px solid #86efac;
+  color:#88f6b0;
+  border-radius:8px;
+  padding:4px 8px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.approve-btn:hover {
+  background:#bbf7d0;
+}
+
+.approve-btn {
+  background: #7de9a5;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.reject-btn {
+  background: #ed9b9b;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.fulfill-btn {
+  background: #94b1f0;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.delete-icon {
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.2s;
+}
+
+.delete-icon:hover {
+  transform: scale(1.2);
+  opacity: 0.7;
 }

@@ -111,7 +111,10 @@ const Analytics = () => {
       },
     ],
   };
-
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+};
   return (
     <div className="analytics-page">
       <h3>Analytics & Reports</h3>
@@ -138,14 +141,18 @@ const Analytics = () => {
         <div className="col-md-6">
           <div className="analytics-card">
             <h6>Monthly Donation Trend</h6>
-            <Line data={monthlyTrend} />
+            <div className="chart-box">
+  <Line data={monthlyTrend} />
+</div>
           </div>
         </div>
 
         <div className="col-md-6">
           <div className="analytics-card">
             <h6>Blood Group Distribution</h6>
-            <Bar data={bloodGroup} />
+          <div className="chart-box">
+  <Bar data={bloodGroup} />
+</div>
           </div>
         </div>
       </div>
@@ -155,14 +162,18 @@ const Analytics = () => {
         <div className="col-md-4">
           <div className="analytics-card">
             <h6>Donation Types</h6>
-            <Pie data={donationTypes} />
+          <div className="chart-box">
+  <Pie data={donationTypes} />
+</div>
           </div>
         </div>
 
         <div className="col-md-4">
           <div className="analytics-card">
             <h6>Gender Distribution</h6>
-            <Pie data={genderData} />
+           <div className="chart-box">
+  <Pie data={genderData} />
+</div>
           </div>
         </div>
 

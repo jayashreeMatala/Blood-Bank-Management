@@ -1,9 +1,61 @@
 import React, { useState } from "react";
 import "./BloodRequests.css";
+import { useRequests } from "../context/RequestContext.jsx";
 
 export default function BloodRequests() {
   const [showModal, setShowModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+    const { 
+  requests, 
+  addRequest, 
+  approveRequest, 
+  rejectRequest, 
+  markFulfilled,
+  deleteRequest
+} = useRequests();
+    const total = requests.length;
+const pending = requests.filter(r => r.status === "Pending").length;
+const approved = requests.filter(r => r.status === "Approved").length;
+const fulfilled = requests.filter(r => r.status === "Fulfilled").length;
+const rejected = requests.filter(r => r.status === "Rejected").length;
+    const [form, setForm] = useState({
+  hospital: "",
+  doctor: "",
+  phone: "",
+  email: "",
+  patient: "",
+  blood: "",
+  units: 1,
+  priority: "Normal",
+  date: "",
+  reason: ""
+});
+const handleChange = (e) => {
+  setForm({ ...form, [e.target.name]: e.target.value });
+};
+const handleSubmit = async () => {
+  if (!form.hospital || !form.blood || !form.units || !form.date) {
+    alert("Please fill required fields");
+    return;
+  }
+
+  await addRequest(form);
+
+setForm({
+  hospital: "",
+  doctor: "",
+  phone: "",
+  email: "",
+  patient: "",
+  blood: "",
+  units: 1,
+  priority: "Normal",
+  date: "",
+  reason: ""
+});
+
+setShowModal(false);
+};
 
 
   return (
@@ -34,31 +86,31 @@ export default function BloodRequests() {
 
         <div className="summary-card border-gray">
           <div className="icon-box bg-gray">📄</div>
-          <h2>4</h2>
+          <h2>{total}</h2>
           <span>Total</span>
         </div>
 
         <div className="summary-card border-yellow">
           <div className="icon-box bg-yellow">⏳</div>
-          <h2>0</h2>
+         <h2>{pending}</h2>
           <span>Pending</span>
         </div>
 
         <div className="summary-card border-blue">
           <div className="icon-box bg-blue">✔</div>
-          <h2>0</h2>
+         <h2>{approved}</h2>
           <span>Approved</span>
         </div>
 
         <div className="summary-card border-green">
           <div className="icon-box bg-green">📈</div>
-          <h2>4</h2>
+          <h2>{fulfilled}</h2>
           <span>Fulfilled</span>
         </div>
 
         <div className="summary-card border-red">
           <div className="icon-box bg-red">✖</div>
-          <h2>0</h2>
+          <h2>{rejected}</h2>
           <span>Rejected</span>
         </div>
 
@@ -102,33 +154,124 @@ export default function BloodRequests() {
             </tr>
           </thead>
 
-          <tbody>
-            <tr>
-              <td>
-                <div className="req-id">
-                  <span className="dot green"></span>
-                  REQ-2024-003
-                </div>
-              </td>
-              <td>
-                <strong>Max Hospital</strong>
-                <div className="sub">Dr. Kumar</div>
-              </td>
-              <td>Patient C</td>
-              <td><span className="blood b-green">B+</span></td>
-              <td className="units">3</td>
-              <td>Jan 18, 2025</td>
-              <td><span className="badge normal">Normal</span></td>
-              <td><span className="badge fulfilled">Fulfilled</span></td>
-              <td
-  style={{ cursor: "pointer" }}
-  onClick={() => setShowDetails(true)}
+  <tbody>
+  {requests.map((r, index) => {
+
+    // DOT COLOR
+    const dotColor =
+      r.priority === "Emergency"
+        ? "red"
+        : r.priority === "Urgent"
+        ? "orange"
+        : "green";
+
+    // BLOOD COLOR
+    const bloodClass =
+      r.blood === "A+" ? "b-blue" :
+      r.blood === "B+" ? "b-green" :
+      r.blood === "O-" ? "b-red" :
+      "b-purple";
+
+    return (
+      <tr key={r._id}>
+
+        {/* REQUEST ID */}
+        <td>
+          <div className="req-id">
+            <span className={`dot ${dotColor}`}></span>
+            REQ-{new Date(r.createdAt || Date.now()).getFullYear()}-
+            {(index + 1).toString().padStart(3, "0")}
+          </div>
+        </td>
+
+        {/* HOSPITAL */}
+        <td>
+          <strong>{r.hospital}</strong>
+          <div className="sub">{r.doctor}</div>
+        </td>
+
+        {/* PATIENT */}
+        <td>{r.patient}</td>
+
+        {/* BLOOD */}
+        <td>
+          <span className={`blood ${bloodClass}`}>
+            {r.blood}
+          </span>
+        </td>
+
+        {/* UNITS */}
+        <td className="units">{r.units}</td>
+
+        {/* DATE */}
+        <td>
+          {r.date
+            ? new Date(r.date).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric"
+              })
+            : ""}
+        </td>
+
+        {/* PRIORITY */}
+        <td>
+          <span className={`badge ${r.priority.toLowerCase()}`}>
+            {r.priority}
+          </span>
+        </td>
+
+        {/* STATUS */}
+        <td>
+          <span className="badge fulfilled">
+            {r.status}
+          </span>
+        </td>
+{/* ACTION */}
+<td style={{ display: "flex", gap: "8px" }}>
+ {r.status === "Pending" && (
+  <>
+    <button
+      className="approve-btn"
+      onClick={() => approveRequest(r._id)}
+    >
+      ✔
+    </button>
+
+    <button
+      className="reject-btn"
+      onClick={() => rejectRequest(r._id)}
+    >
+      ✖
+    </button>
+  </>
+)}
+
+{r.status === "Approved" && (
+  <button
+    className="fulfill-btn"
+    onClick={() => markFulfilled(r._id)}
+  >
+    📦
+  </button>
+)}
+👁
+<span
+  className="delete-icon"
+  onClick={() => {
+    if (window.confirm("Are you sure you want to delete this request?")) {
+      deleteRequest(r._id);
+    }
+  }}
 >
-  👁
+  🗑
+</span>
 </td>
 
-            </tr>
-          </tbody>
+      </tr>
+    );
+  })}
+</tbody>
 
         </table>
       </div>
@@ -160,22 +303,38 @@ export default function BloodRequests() {
         <div className="nr-grid">
           <div>
             <label>Hospital Name *</label>
-            <input defaultValue="City Hospital" />
+            <input
+  name="hospital"
+  value={form.hospital}
+  onChange={handleChange}
+/>
           </div>
 
           <div>
             <label>Doctor Name</label>
-            <input defaultValue="Dr. Sharma" />
+            <input
+  name="doctor"
+  value={form.doctor}
+  onChange={handleChange}
+/>
           </div>
 
           <div>
             <label>Contact Phone</label>
-            <input defaultValue="+91 9876543210" />
+           <input
+  name="phone"
+  value={form.phone}
+  onChange={handleChange}
+/>
           </div>
 
           <div>
             <label>Contact Email</label>
-            <input defaultValue="doctor@hospital.com" />
+            <input
+  name="email"
+  value={form.email}
+  onChange={handleChange}
+/>
           </div>
         </div>
       </div>
@@ -187,31 +346,62 @@ export default function BloodRequests() {
         <div className="nr-grid">
           <div>
             <label>Patient Name</label>
-            <input placeholder="Patient name" />
+           <input
+  name="patient"
+  value={form.patient}
+  onChange={handleChange}
+/>
           </div>
 
           <div>
             <label>Blood Group *</label>
-            <select>
-              <option>Select</option>
-            </select>
+            <select
+  name="blood"
+  value={form.blood}
+  onChange={handleChange}
+>
+  <option value="">Select</option>
+  <option>A+</option>
+  <option>A-</option>
+  <option>B+</option>
+  <option>B-</option>
+  <option>O+</option>
+  <option>O-</option>
+  <option>AB+</option>
+  <option>AB-</option>
+</select>
           </div>
 
           <div>
             <label>Units Required *</label>
-            <input type="number" defaultValue="1" />
+            <input
+  type="number"
+  name="units"
+  value={form.units}
+  onChange={handleChange}
+/>
           </div>
 
           <div>
-            <label>Priority / Urgency</label>
-            <select>
-              <option>Normal</option>
-            </select>
+            <select
+  name="priority"
+  value={form.priority}
+  onChange={handleChange}
+>
+  <option value="Normal">Normal</option>
+  <option value="Urgent">Urgent</option>
+  <option value="Emergency">Emergency</option>
+</select>
           </div>
 
           <div>
             <label>Required By Date</label>
-            <input type="date" />
+            <input
+  type="date"
+  name="date"
+  value={form.date}
+  onChange={handleChange}
+/>
           </div>
         </div>
       </div>
@@ -219,7 +409,11 @@ export default function BloodRequests() {
       {/* TEXTAREA */}
       <div className="nr-textarea">
         <label>Patient Condition / Reason</label>
-        <textarea placeholder="Describe the reason for request..."></textarea>
+        <textarea
+  name="reason"
+  value={form.reason}
+  onChange={handleChange}
+/>
       </div>
 
       {/* FOOTER */}
@@ -231,9 +425,9 @@ export default function BloodRequests() {
           ✕ Cancel
         </button>
 
-        <button className="nr-submit">
-          ➤ Submit Request
-        </button>
+       <button className="nr-submit" onClick={handleSubmit}>
+  ➤ Submit Request
+</button>
       </div>
 
     </div>

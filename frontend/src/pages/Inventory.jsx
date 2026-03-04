@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
 import "./BloodInventory.css";
 
 
@@ -33,31 +32,154 @@ function BloodInventory() {
   const [showModal, setShowModal] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState(null);
+  const [stockData, setStockData] = useState([]);
+  const [formData, setFormData] = useState({
+  bloodGroup: "",
+  units: 1,
+  status: "Collected",
+  collectionDate: "",
+  expiryDate: "",
+  storageLocation: "",
+  testResult: "Pending",
+  donorName: "",
+  campName: ""
+});
 
-  const stockData = [
-  {
-    batchId: "BATCH-2024-005",
-    blood: "O-",
-    donor: "Rahul Sharma",
-    units: 3,
-    collectionDate: "Dec 8, 2024",
-    expiry: "Jan 23, 2025",
-    hemoglobin: "12.5 g/dL",
-    bp: "120",
-    pulse: "78 bpm"
-  },
-  {
-    batchId: "BATCH-2024-007",
-    blood: "B-",
-    donor: "Amit Kumar",
-    units: 6,
-    collectionDate: "Dec 14, 2024",
-    expiry: "Jan 29, 2025",
-    hemoglobin: "13.2 g/dL",
-    bp: "118",
-    pulse: "75 bpm"
+const getGroupUnits = (group) => {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  return stockData
+    .filter(stock => {
+      const expiry = new Date(stock.expiryDate);
+      expiry.setHours(0,0,0,0);
+
+      return (
+        stock.bloodGroup === group &&
+        stock.status === "Stored" &&
+        expiry >= today
+      );
+    })
+    .reduce((total, stock) => {
+      const available = stock.units - (stock.reservedUnits || 0);
+      return total + available;
+    }, 0);
+};
+
+const getReservedUnits = (group) => {
+  return stockData
+    .filter(stock => stock.bloodGroup === group)
+    .reduce((total, stock) => {
+      return total + (stock.reservedUnits || 0);
+    }, 0);
+};
+  useEffect(() => {
+  fetchStocks();
+}, []);
+
+const fetchStocks = async () => {
+  try {
+    const res = await fetch("http://localhost:5000/api/inventory");
+    const data = await res.json();
+    setStockData(data);
+  } catch (error) {
+    console.error("Fetch error:", error);
   }
-];
+};
+
+// 🔴 LOW STOCK LOGIC
+
+const bloodGroups = ["A+","A-","B+","B-","AB+","AB-","O+","O-"];
+
+// Available units per group (Stored + Not Expired)
+const getAvailableUnits = (group) => {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  return stockData
+    .filter(stock => {
+      const expiry = new Date(stock.expiryDate);
+      expiry.setHours(0,0,0,0);
+
+      return (
+        stock.bloodGroup === group &&
+        stock.status === "Stored" &&
+        expiry >= today
+      );
+    })
+    .reduce((total, stock) => total + Number(stock.units || 0), 0);
+};
+
+
+
+// Count how many groups are LOW or CRITICAL
+
+const lowStockCount = bloodGroups.filter(group => {
+  const units = getAvailableUnits(group);
+
+  const groupExists = stockData.some(
+    stock => stock.bloodGroup === group
+  );
+
+  return groupExists && units > 0 && units <= 3;
+}).length;
+ const handleAddStock = async () => {
+  try {
+   if (
+  formData.bloodGroup.trim() === "" ||
+  formData.collectionDate.trim() === ""
+) {
+  alert("Please fill required fields");
+  return;
+} 
+
+    const expiry =
+      formData.expiryDate ||
+      new Date(
+        new Date(formData.collectionDate).setDate(
+          new Date(formData.collectionDate).getDate() + 42
+        )
+      );
+
+    await fetch("http://localhost:5000/api/inventory", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        batchId: "BATCH-" + Date.now(),
+        bloodGroup: formData.bloodGroup,
+        donorName: formData.donorName,
+        units: Number(formData.units)||1,
+        collectionDate: formData.collectionDate,
+        expiryDate: expiry,
+        status: formData.status,
+        testResult: formData.testResult,
+        storageLocation: formData.storageLocation
+      })
+    });
+
+    setShowModal(false);
+    fetchStocks();
+
+    // Reset form
+    setFormData({
+      bloodGroup: "",
+      units: 1,
+      status: "Collected",
+      collectionDate: "",
+      expiryDate: "",
+      storageLocation: "",
+      testResult: "Pending",
+      donorName: "",
+      campName: ""
+    });
+
+  } catch (error) {
+    console.error(error);
+    alert("Add failed");
+  }
+};
 
 
   return (
@@ -90,7 +212,22 @@ function BloodInventory() {
 
   <div className="summary-card blue">
     <div className="icon-wrapper blue-bg">📦</div>
-    <h2>9</h2>
+   <h2>
+  {
+    stockData.filter(stock => {
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      const expiry = new Date(stock.expiryDate);
+      expiry.setHours(0,0,0,0);
+
+      return (
+        stock.status === "Stored" &&
+        expiry >= today
+      );
+    }).length
+  }
+</h2>
     <p>Total Available</p>
   </div>
 
@@ -102,20 +239,41 @@ function BloodInventory() {
 
   <div className="summary-card red">
     <div className="icon-wrapper red-bg">⚠</div>
-    <h2>7</h2>
+    <h2>{lowStockCount}</h2>
     <p>Low Stock Alerts</p>
   </div>
 
   <div className="summary-card orange">
     <div className="icon-wrapper orange-bg">⏰</div>
-    <h2>0</h2>
+   <h2>
+  {
+    stockData.filter(stock => {
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      const expiry = new Date(stock.expiryDate);
+      expiry.setHours(0,0,0,0);
+
+      const diffDays = Math.ceil(
+        (expiry - today) / (1000 * 60 * 60 * 24)
+      );
+
+      return diffDays >= 0 && diffDays <= 7;
+    }).length
+  }
+</h2>
     <p>Expiring Soon (7d)</p>
   </div>
 
   <div className="summary-card purple">
     <div className="icon-wrapper purple-bg">🔖</div>
-    <h2>0</h2>
-    <p>Reserved / Issued</p>
+    <h2>
+  {stockData.reduce(
+    (total, stock) => total + (stock.reservedUnits || 0),
+    0
+  )}
+</h2>
+<p>Reserved / Issued</p>
   </div>
 
   <div className="summary-card gray">
@@ -140,11 +298,13 @@ function BloodInventory() {
     <div className="blood-content">
       <div className="row">
         <span>Available</span>
-        <strong>0</strong>
+        <strong>{getGroupUnits("A+")}</strong>
       </div>
       <div className="row">
         <span>Reserved</span>
-        <span className="reserved">0</span>
+       <span className="reserved">
+  {getReservedUnits("A+")}
+</span>
       </div>
       <div className="progress"></div>
       <div className="status critical">CRITICAL</div>
@@ -157,11 +317,13 @@ function BloodInventory() {
     <div className="blood-content">
       <div className="row">
         <span>Available</span>
-        <strong>0</strong>
+       <strong>{getGroupUnits("A-")}</strong>
       </div>
       <div className="row">
         <span>Reserved</span>
-        <span className="reserved">0</span>
+        <span className="reserved">
+  {getReservedUnits("A-")}
+</span>
       </div>
       <div className="progress"></div>
       <div className="status critical">CRITICAL</div>
@@ -174,11 +336,13 @@ function BloodInventory() {
     <div className="blood-content">
       <div className="row">
         <span>Available</span>
-        <strong>0</strong>
+        <strong>{getGroupUnits("B+")}</strong>
       </div>
       <div className="row">
         <span>Reserved</span>
-        <span className="reserved">0</span>
+        <span className="reserved">
+  {getReservedUnits("B+")}
+</span>
       </div>
       <div className="progress"></div>
       <div className="status critical">CRITICAL</div>
@@ -191,11 +355,13 @@ function BloodInventory() {
     <div className="blood-content">
       <div className="row">
         <span>Available</span>
-        <strong>6</strong>
+        <strong>{getGroupUnits("B-")}</strong>
       </div>
       <div className="row">
         <span>Reserved</span>
-        <span className="reserved">0</span>
+       <span className="reserved">
+  {getReservedUnits("B-")}
+</span>
       </div>
       <div className="progress green-fill"></div>
       <div className="status safe">SAFE</div>
@@ -208,11 +374,13 @@ function BloodInventory() {
     <div className="blood-content">
       <div className="row">
         <span>Available</span>
-        <strong>0</strong>
+       <strong>{getGroupUnits("AB+")}</strong>
       </div>
       <div className="row">
         <span>Reserved</span>
-        <span className="reserved">0</span>
+       <span className="reserved">
+  {getReservedUnits("AB+")}
+</span>
       </div>
       <div className="progress"></div>
       <div className="status critical">CRITICAL</div>
@@ -225,11 +393,13 @@ function BloodInventory() {
     <div className="blood-content">
       <div className="row">
         <span>Available</span>
-        <strong>0</strong>
+      <strong>{getGroupUnits("AB-")}</strong>
       </div>
       <div className="row">
         <span>Reserved</span>
-        <span className="reserved">0</span>
+       <span className="reserved">
+  {getReservedUnits("AB-")}
+</span>
       </div>
       <div className="progress"></div>
       <div className="status critical">CRITICAL</div>
@@ -242,11 +412,13 @@ function BloodInventory() {
     <div className="blood-content">
       <div className="row">
         <span>Available</span>
-        <strong>0</strong>
+        <strong>{getGroupUnits("O+")}</strong>
       </div>
       <div className="row">
         <span>Reserved</span>
-        <span className="reserved">0</span>
+       <span className="reserved">
+  {getReservedUnits("O+")}
+</span>
       </div>
       <div className="progress"></div>
       <div className="status critical">CRITICAL</div>
@@ -259,11 +431,13 @@ function BloodInventory() {
     <div className="blood-content">
       <div className="row">
         <span>Available</span>
-        <strong>3</strong>
+        <strong>{getGroupUnits("O-")}</strong>
       </div>
       <div className="row">
         <span>Reserved</span>
-        <span className="reserved">0</span>
+       <span className="reserved">
+  {getReservedUnits("O-")}
+</span>
       </div>
       <div className="progress yellow-fill"></div>
       <div className="status low">LOW</div>
@@ -330,32 +504,58 @@ function BloodInventory() {
       </td>
 
       <td>
-        <span className={`blood-pill ${stock.blood === "O-" ? "red" : "green"}`}>
-          {stock.blood}
+        <span className={`blood-pill ${stock.bloodGroup === "O-" ? "red" : "green"}`}>
+          {stock.bloodGroup}
         </span>
       </td>
 
-      <td>{stock.donor}</td>
+      <td>{stock.donorName}</td>
 
       <td><strong>{stock.units}</strong> units</td>
 
-      <td>{stock.collectionDate}</td>
+      <td>
+ {stock.collectionDate
+  ? new Date(stock.collectionDate).toLocaleDateString()
+  : "-"}
+</td>
+
+     <td>
+  <div className="expiry">
+    {stock.expiryDate
+  ? new Date(stock.expiryDate).toLocaleDateString()
+  : "-"}
+
+    {(() => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const expiry = new Date(stock.expiryDate);
+      expiry.setHours(0, 0, 0, 0);
+
+      const diffDays = Math.ceil(
+        (expiry - today) / (1000 * 60 * 60 * 24)
+      );
+
+      if (diffDays < 0) {
+        return <span className="expired-badge">EXPIRED</span>;
+      }
+
+      if (diffDays <= 7) {
+        return <span className="soon-badge">EXPIRING SOON</span>;
+      }
+
+      return null;
+    })()}
+  </div>
+</td>
+    <td>{stock.storageLocation}</td>
 
       <td>
-        <div className="expiry">
-          {stock.expiry}
-          <span className="expired-badge">EXPIRED</span>
-        </div>
+        <span className="status-pill stored">{stock.status}</span>
       </td>
 
-      <td>Refrigerator C</td>
-
       <td>
-        <span className="status-pill stored">Stored</span>
-      </td>
-
-      <td>
-        <span className="status-pill passed">Passed</span>
+        <span className="status-pill passed">{stock.testResult}</span>
       </td>
 
       <td className="action-icons">
@@ -370,7 +570,18 @@ function BloodInventory() {
         </span>
 
         <span className="edit">✏</span>
-        <span className="delete">🗑</span>
+        <span
+  className="delete"
+  onClick={async () => {
+    await fetch(
+      `http://localhost:5000/api/inventory/${stock._id}`,
+      { method: "DELETE" }
+    );
+    fetchStocks();
+  }}
+>
+  🗑
+</span>
       </td>
     </tr>
   ))}
@@ -478,26 +689,56 @@ function BloodInventory() {
         <div className="stock-grid">
           <div>
             <label>Batch ID</label>
-            <input value="BATCH-1771525527653" readOnly />
+           <input value={"BATCH-" + Date.now()} readOnly />
           </div>
 
           <div>
             <label>Blood Group *</label>
-            <select>
-              <option>Select blood group</option>
-            </select>
+            <select
+  value={formData.bloodGroup}
+  onChange={(e) =>
+    setFormData({ ...formData, bloodGroup: e.target.value })
+  }
+>
+  <option value="">Select blood group</option>
+  <option value="A+">A+</option>
+  <option value="A-">A-</option>
+  <option value="B+">B+</option>
+  <option value="B-">B-</option>
+  <option value="AB+">AB+</option>
+  <option value="AB-">AB-</option>
+  <option value="O+">O+</option>
+  <option value="O-">O-</option>
+</select>
+              
+           
           </div>
 
           <div>
             <label>Units</label>
-            <input type="number" defaultValue="1" />
+            <input
+  type="number"
+  value={formData.units}
+  onChange={(e) =>
+    setFormData({ ...formData, units: e.target.value })
+  }
+/>
           </div>
 
           <div>
             <label>Status</label>
-            <select>
-              <option>Collected</option>
-            </select>
+            
+              <select
+  value={formData.status}
+  onChange={(e) =>
+    setFormData({ ...formData, status: e.target.value })
+  }
+>
+  <option value="Collected">Collected</option>
+  <option value="Stored">Stored</option>
+  <option value="Issued">Issued</option>
+</select>
+           
           </div>
         </div>
       </div>
@@ -507,12 +748,48 @@ function BloodInventory() {
         <div className="stock-grid">
           <div>
             <label>Collection Date *</label>
-            <input type="date" />
+            <input
+  type="date"
+  value={formData.collectionDate}
+  onChange={(e) => {
+  const selectedDate = e.target.value;
+
+  // Agar date empty hai to crash mat hone do
+  if (!selectedDate) {
+    setFormData({
+      ...formData,
+      collectionDate: "",
+      expiryDate: ""
+    });
+    return;
+  }
+
+  const expiryDate = new Date(selectedDate);
+
+  // Safety check
+  if (isNaN(expiryDate.getTime())) {
+    return;
+  }
+
+  expiryDate.setDate(expiryDate.getDate() + 42);
+
+  setFormData({
+    ...formData,
+    collectionDate: selectedDate,
+    expiryDate: expiryDate.toISOString().split("T")[0]
+  });
+
+  }}
+/>
           </div>
 
           <div>
             <label>Expiry Date (auto: +42 days)</label>
-            <input type="date" />
+           <input
+  type="date"
+  value={formData.expiryDate}
+  readOnly
+/>
           </div>
         </div>
       </div>
@@ -522,19 +799,38 @@ function BloodInventory() {
         <div className="stock-grid">
           <div>
             <label>Storage Location / Rack</label>
-            <input placeholder="e.g. Refrigerator A - Rack 2" />
+            <input
+  placeholder="e.g. Refrigerator A - Rack 2"
+  value={formData.storageLocation}
+  onChange={(e) =>
+    setFormData({ ...formData, storageLocation: e.target.value })
+  }
+/>
           </div>
 
           <div>
             <label>Test Result</label>
-            <select>
-              <option>Pending</option>
-            </select>
+            <select
+  value={formData.testResult}
+  onChange={(e) =>
+    setFormData({ ...formData, testResult: e.target.value })
+  }
+>
+  <option value="Pending">Pending</option>
+  <option value="Passed">Passed</option>
+  <option value="Failed">Failed</option>
+</select>
           </div>
 
           <div>
             <label>Donor Name</label>
-            <input placeholder="Optional" />
+            <input
+  placeholder="Optional"
+  value={formData.donorName}
+  onChange={(e) =>
+    setFormData({ ...formData, donorName: e.target.value })
+  }
+/>
           </div>
 
           <div>
@@ -552,7 +848,8 @@ function BloodInventory() {
           Cancel
         </button>
 
-        <button className="add-btn">
+        <button className="add-btn"
+        onClick={handleAddStock}>
           Add Stock
         </button>
       </div>
@@ -581,19 +878,19 @@ function BloodInventory() {
 
           <div>
             <label>Donor Name</label>
-            <p>{selectedStock.donor}</p>
+            <p>{selectedStock.donorName}</p>
           </div>
 
           <div>
             <label>Blood Group</label>
             <span className="blood-pill green">
-              {selectedStock.blood}
+              {selectedStock.bloodGroup}
             </span>
           </div>
 
           <div>
             <label>Donation Date</label>
-            <p>{selectedStock.collectionDate}</p>
+            <p>{new Date(selectedStock.collectionDate).toLocaleDateString()}</p>
           </div>
 
         </div>
@@ -624,7 +921,7 @@ function BloodInventory() {
 
           <div className="vital-box">
             <span>Hemoglobin</span>
-            <strong>{selectedStock.hemoglobin}</strong>
+            <strong>{selectedStock.hemoglobin || "-"}</strong>
           </div>
 
           <div className="vital-box">

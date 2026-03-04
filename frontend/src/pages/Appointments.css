@@ -20,6 +20,10 @@
   color: #ffe4e6 !important;
 }
 
+.chart-box{
+height:250px;
+position:relative;
+}
 /* ===== HEADER BUTTONS ===== */
 .container-fluid .btn-sm {
   padding: 8px 16px;

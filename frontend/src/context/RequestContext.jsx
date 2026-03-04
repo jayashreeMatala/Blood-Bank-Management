@@ -1,57 +1,76 @@
-import { createContext, useContext, useState } from "react";
-import { useInventory } from "./InventoryContext"; // ✅ TOP IMPORT
+import { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
+const API = "http://localhost:5000/api/requests";
 const RequestContext = createContext();
 
 export function RequestProvider({ children }) {
   const [requests, setRequests] = useState([]);
 
-  // ✅ INVENTORY FUNCTION
-  const { deductBlood } = useInventory();
+  useEffect(() => {
+    axios.get(API)
+      .then(res => setRequests(res.data))
+      .catch(err => console.log(err));
+  }, []);
 
-  /* ======================
-     ADD REQUEST
-  ====================== */
-  const addRequest = (data) => {
-    setRequests((prev) => [
-      {
-        id: "REQ-" + Date.now(),
-        status: "Pending",
-        ...data
-      },
-      ...prev
-    ]);
+  // ADD
+  const addRequest = async (data) => {
+    try {
+      const res = await axios.post(API, data);
+      setRequests(prev => [res.data, ...prev]);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  /* ======================
-     APPROVE / REJECT
-  ====================== */
-  const approveRequest = (id) => {
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === id ? { ...r, status: "Approved" } : r
-      )
+  // APPROVE
+  const approveRequest = async (id) => {
+    try {
+      const res = await axios.put(`${API}/${id}/approve`);
+      setRequests(prev =>
+        prev.map(r => r._id === id ? res.data : r)
+      );
+    } catch (err) {
+      console.log("APPROVE ERROR:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "Approve failed");
+    }
+  };
+
+  const deleteRequest = async (id) => {
+  try {
+    await axios.delete(`${API}/${id}`);
+
+    setRequests(prev =>
+      prev.filter(r => r._id !== id)
     );
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+  // REJECT
+  const rejectRequest = async (id) => {
+    try {
+      const res = await axios.put(`${API}/${id}/reject`);
+      setRequests(prev =>
+        prev.map(r => r._id === id ? res.data : r)
+      );
+    } catch (err) {
+      console.log("REJECT ERROR:", err);
+    }
   };
 
-  const rejectRequest = (id) => {
-    setRequests((prev) => prev.filter((r) => r.id !== id));
-  };
-
-  /* ======================
-     MARK FULFILLED
-     👉 INVENTORY DEDUCT
-  ====================== */
-  const markFulfilled = (id) => {
-    setRequests((prev) =>
-      prev.map((r) => {
-        if (r.id === id) {
-          deductBlood(r.blood, Number(r.units)); // ✅ INVENTORY UPDATE
-          return { ...r, status: "Fulfilled" };
-        }
-        return r;
-      })
-    );
+  // FULFILL
+  const markFulfilled = async (id) => {
+    try {
+      const res = await axios.put(`${API}/${id}/fulfill`);
+      setRequests(prev =>
+        prev.map(r => r._id === id ? res.data : r)
+      );
+    } catch (err) {
+      console.log("FULFILL ERROR:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "Fulfill failed");
+    }
   };
 
   return (
@@ -61,7 +80,8 @@ export function RequestProvider({ children }) {
         addRequest,
         approveRequest,
         rejectRequest,
-        markFulfilled
+        markFulfilled,
+        deleteRequest
       }}
     >
       {children}
